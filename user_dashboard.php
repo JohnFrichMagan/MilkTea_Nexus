@@ -30,6 +30,30 @@
             height: 20px;
             fill: currentColor;
         }
+         .profile-details {
+    display: flex; /* Enable flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    /* Add any other styling for the container if needed */
+    padding: 10px; /* Example padding */
+    background-color: #f0f0f0; /* Example background color */
+    border-radius: 5px; /* Example border radius */
+}
+
+.user-info {
+    display: flex; /* Enable flexbox for name and icon */
+    align-items: center; /* Align name and icon vertically */
+}
+
+.user_name {
+    margin-right: 8px; /* Add some space between the name and the icon */
+}
+
+.profile-icon svg {
+    width: 24px; /* Adjust the size of the icon */
+    height: 24px;
+    fill: rgba(0, 0, 0, 0.7); /* Adjust the color of the icon */
+}
     </style>
 </head>
 <body>
@@ -87,18 +111,11 @@
                 <input type="text" placeholder="Search..." />
                 <i class="bx bx-search"></i>
             </div>
-           <div class="profile-details">
-    <?php if (isset($_SESSION["email"])): ?>
-        <span class="user_name"><?php echo htmlspecialchars($_SESSION["email"]); ?></span>
-    <?php else: ?>
-        <span class="user_name">Guest</span>
-    <?php endif; ?>
-    <div class="profile-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-        </svg>
-    </div>
-</div>
+     <div class="profile-details">
+        <img src="images/admin.jpg" alt="" />
+        <span class="admin_name">User</span>
+        <i class="bx bx-chevron-down"></i>
+      </div>
 
         </nav>
 

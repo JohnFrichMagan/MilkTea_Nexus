@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e0f7fa;
+            background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -131,7 +131,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: inline-block;
             color: #0061D0;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: bolder;
             margin-top: 12px;
         }
 
@@ -172,6 +173,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .signup-link a:hover {
             text-decoration: underline;
         }
+
+         .or-separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #7f8c8d;
+        }
+
+        .or-separator::before,
+        .or-separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+            margin: 0 10px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .social-icons a img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .social-icons a img:hover {
+            transform: scale(1.1);
+        }
+
+
+        #facebook-icon {
+            color: #1877f2;
+        }
+
+        #google-icon {
+            color: #db4437;
+        }
+
+        #tiktok-icon {
+            color: #000000;
+        }
     </style>
 </head>
 <body>
@@ -179,11 +230,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2>User Login</h2>
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="form-group">
-                <label for="email">User Email</label>
+                <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
             </div>
             <div class="form-group">
-                <label for="password">User Password</label>
+                <label for="password">Password</label>
                 <div class="password-input-container">
                     <input type="password" id="password" name="password" required>
                     <i class="bx bx-show password-toggle-icon" id="password-toggle"></i>
@@ -193,11 +244,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="#">Forgot password?</a>
             </div>
             <div class="form-group">
-                <button type="submit">User Login</button>
+                <button type="submit">Login</button>
             </div>
         </form>
+
         <div class="signup-link">
             Don't have an account? <a href="user_register.php">Sign Up</a>
+        </div>
+
+        <!-- OR and Social Icons Now Below -->
+        <div class="or-separator">Or</div>
+        <div class="social-icons">
+            <a href="https://facebook.com/yourpage" target="_blank">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+            </a>
+            <a href="#">
+                <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">
+            </a>
+            <a href="#">
+                <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok">
+            </a>
         </div>
     </div>
 
@@ -218,4 +284,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     </script>
 </body>
-</html>

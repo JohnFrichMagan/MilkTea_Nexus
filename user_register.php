@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f8f8;
+            background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -144,16 +144,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .form-group .login-link {
             background-color: transparent;
             text-decoration: none;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bolder;
             margin-left: 5px;
-            color: #ff6f61;
+            color: #0061D0;
             cursor: pointer;
         }
 
 
         .form-group p {
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             margin-top: 20px;
         }
 

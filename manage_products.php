@@ -21,7 +21,21 @@ if (isset($_GET['edit'])) {
 // Handle Add or Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productName = $_POST['productName'];
+$lowerName = strtolower($productName);
+
+// Auto-detect category
+if (strpos($lowerName, 'latte') !== false) {
+    $category = 'Latte';
+} elseif (strpos($lowerName, 'milk tea') !== false || strpos($lowerName, 'milktea') !== false) {
+    $category = 'Milk Tea';
+} elseif (strpos($lowerName, 'smoothie') !== false) {
+    $category = 'Smoothie';
+} elseif (strpos($lowerName, 'coffee') !== false) {
+    $category = 'Coffee';
+} else {
     $category = $_POST['category'];
+}
+
     $price = $_POST['price'];
     $stock = $_POST['stock'];
     $imageUrl = $_POST['imageUrl']; // Get image URL
@@ -52,11 +66,12 @@ $products = $conn->query("SELECT * FROM products");
     <meta charset="UTF-8">
     <title>Stocks Management | MILKTEA NEXUS</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         /* Basic Styling */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #E2AD7E;
             margin: 0;
             padding: 0;
         }
@@ -154,7 +169,7 @@ $products = $conn->query("SELECT * FROM products");
         /* Table Styling */
         .table-container {
             margin-top: 30px;
-            background-color: #fff;
+            background-color: #FFDCC1;;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -172,7 +187,7 @@ $products = $conn->query("SELECT * FROM products");
         }
 
         th {
-            background-color: #f1f1f1;
+            background-color: #ffffff;;
             color: #333;
         }
 
@@ -189,16 +204,39 @@ $products = $conn->query("SELECT * FROM products");
             color: #d63031;
         }
 
+        .back-btn {
+    background-color: #dfe6e9;
+    color: #2d3436;
+    padding: 15px 30px;
+    font-size: 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-right: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #b2bec3;
+}
+
     </style>
 </head>
 <body>
 
 <div class="home-content">
     <div class="center-btn">
-        <button id="addProductBtn" class="add-product-btn">
-            <?= $editingProduct ? 'Edit Product' : 'Add Product' ?>
-        </button>
-    </div>
+    <a href="product.php" class="back-btn">
+    <i class="fas fa-arrow-left"></i> Back to Products
+    </a>
+
+    <button id="addProductBtn" class="add-product-btn">
+        <?= $editingProduct ? 'Edit Product' : 'Add Product' ?>
+    </button>
+</div>
+
 
     <!-- Add/Edit Product Form -->
     <div class="add-product" id="addProductForm">
@@ -293,6 +331,21 @@ $products = $conn->query("SELECT * FROM products");
     });
     document.getElementById('closeFormBtn').addEventListener('click', function () {
         document.getElementById('addProductForm').style.display = 'none';
+    });
+
+    document.getElementById('productName').addEventListener('input', function () {
+        const name = this.value.toLowerCase();
+        const categorySelect = document.getElementById('category');
+
+        if (name.includes('latte')) {
+            categorySelect.value = 'Latte';
+        } else if (name.includes('milk tea') || name.includes('milktea')) {
+            categorySelect.value = 'Milk Tea';
+        } else if (name.includes('smoothie')) {
+            categorySelect.value = 'Smoothie';
+        } else if (name.includes('coffee')) {
+            categorySelect.value = 'Coffee';
+        }
     });
 </script>
 

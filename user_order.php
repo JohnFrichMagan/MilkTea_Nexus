@@ -18,7 +18,6 @@ if (!$products) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
-    echo "Product ID: " . $product_id; // Add this line to debug
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
     $order_date = date("Y-m-d H:i:s");
 
@@ -39,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = "INSERT INTO orders (user_id, order_date, total_amount, product_id, quantity) VALUES (?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("isdii", $user_id, $order_date, $total_amount, $product_id, $quantity);
-
 
             if ($stmt->execute()) {
                 $order_id = $stmt->insert_id; // Get the inserted order_id
@@ -104,26 +102,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <span class="dashboard">User Orders</span>
       </div>
       <div class="profile-details">
-        <img src="images/profile.jpg" alt="" />
+        <img src="images/admin.jpg" alt="" />
         <span class="admin_name">User</span>
         <i class="bx bx-chevron-down"></i>
       </div>
     </nav>
 
-<div class="home-content">
-  <!-- Success Modal -->
-  <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-    <div id="successModal" class="modal" style="display: flex;">
-      <div class="modal-content">
-        <span class="close-btn" id="closeModalBtn">&times;</span>
-        <h2>🎉 Order Successful!</h2>
-        <p>Your milk tea order has been placed. We’re already working on it!</p>
-        <a href="user_myorders.php">
-          <button>View My Orders</button>
-        </a>
-      </div>
-    </div>
-  <?php endif; ?>
+    <div class="home-content">
+      <!-- Success Modal -->
+      <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+        <div id="successModal" class="modal" style="display: flex;">
+          <div class="modal-content">
+            <span class="close-btn" id="closeModalBtn">&times;</span>
+            <h2>🎉 Order Successful!</h2>
+            <p>Your milk tea order has been placed. We’re already working on it!</p>
+            <a href="user_myorders.php">
+              <button>View My Orders</button>
+            </a>
+          </div>
+        </div>
+      <?php endif; ?>
 
       <div class="center-btn">
         <button id="addOrderBtn" class="add-product-btn">Add User Order</button>
@@ -141,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select id="product_id" name="product_id" required>
                 <option value="">-- Choose a product --</option>
                 <?php while ($row = $products->fetch_assoc()): ?>
-                    <option value="<?= $row['product_id'] ?>">
+                    <option value="<?= $row['product_id'] ?>" data-price="<?= $row['price'] ?>">
                         <?= htmlspecialchars($row['product_name']) ?> - ₱<?= number_format($row['price'], 2) ?>
                     </option>
                 <?php endwhile; ?>
@@ -153,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="quantity">Quantity</label>
                 <input type="number" id="quantity" name="quantity" required placeholder="Enter Quantity" />
             </div>
+            
 
             <button type="submit" class="btn-save">Place Order</button>
         </form>
@@ -160,6 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
   </section>
+
   <script>
     // Show the form
     document.getElementById('addOrderBtn').addEventListener('click', function () {
@@ -178,15 +178,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       document.getElementById('successModal').style.display = 'none';
     });
 
-    // Sidebar toggle
-    let sidebar = document.querySelector(".sidebar");
-    let sidebarBtn = document.querySelector(".sidebarBtn");
-    sidebarBtn && sidebarBtn.addEventListener('click', () => {
-      sidebar.classList.toggle("active");
-      if (sidebar.classList.contains("active")) {
-        sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+    // Auto calculate total price when quantity changes
+    document.getElementById('quantity').addEventListener('input', function() {
+      const productSelect = document.getElementById('product_id');
+      const price = parseFloat(productSelect.options[productSelect.selectedIndex].getAttribute('data-price'));
+      const quantity = parseInt(this.value);
+      if (quantity > 0) {
+        const totalPrice = price * quantity;
+        document.getElementById('total_price').value = '₱' + totalPrice.toFixed(2);
       } else {
-        sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+        document.getElementById('total_price').value = '₱0.00';
+      }
+    });
+
+    // Ensure initial price calculation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const productSelect = document.getElementById('product_id');
+      const quantity = document.getElementById('quantity').value;
+
+      if (productSelect.value && quantity > 0) {
+        const price = parseFloat(productSelect.options[productSelect.selectedIndex].getAttribute('data-price'));
+        const totalPrice = price * quantity;
+        document.getElementById('total_price').value = '₱' + totalPrice.toFixed(2);
       }
     });
   </script>
@@ -211,81 +224,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .add-product-btn:hover {
       background-color: #4e38c1;
     }
-        .modal {
-  display: none;
-  position: fixed;
-  z-index: 999;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .modal-content h2 {
+      color: #2d3436;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .modal-content p {
+      color: #636e72;
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+
+    .modal-content button {
+      background-color: #6c5ce7;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal-content button:hover {
+      background-color: #4e38c1;
+    }
+
+    .close-btn {
+      color: #d63031;
+      font-size: 24px;
+      font-weight: bold;
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .profile-details {
+    display: flex; /* Enable flexbox for centering */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    /* Add any other styling for the container if needed */
+    padding: 10px; /* Example padding */
+    background-color: #f0f0f0; /* Example background color */
+    border-radius: 5px; /* Example border radius */
 }
 
-.modal-content {
-  background: #ffffff;
-  padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-  animation: fadeIn 0.3s ease-in-out;
+.user-info {
+    display: flex; /* Enable flexbox for name and icon */
+    align-items: center; /* Align name and icon vertically */
 }
 
-.modal-content h2 {
-  color: #2d3436;
-  margin-bottom: 10px;
-  font-size: 28px;
+.user_name {
+    margin-right: 8px; /* Add some space between the name and the icon */
 }
 
-.modal-content p {
-  color: #636e72;
-  font-size: 16px;
-  margin-bottom: 25px;
+.profile-icon svg {
+    width: 24px; /* Adjust the size of the icon */
+    height: 24px;
+    fill: rgba(0, 0, 0, 0.7); /* Adjust the color of the icon */
 }
-
-.modal-content button {
-  background-color: #6c5ce7;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-  background-color: #4e38c1;
-}
-
-.close-btn {
-  color: #d63031;
-  font-size: 24px;
-  font-weight: bold;
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  cursor: pointer;
-}
-
-@keyframes fadeIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
   </style>
+
 </body>
 </html>

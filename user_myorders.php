@@ -2,18 +2,30 @@
 session_start();
 require_once 'config.php';
 
+// Ensure that the user is logged in before fetching their orders
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
 
 $user_id = $_SESSION['user_id'];
 
 try {
-    $sql = "SELECT o.order_id, o.order_date, o.total_amount, os.status_name, o.customer_name, od.flavor, od.size, od.quantity
-        FROM `Order` o
-        JOIN Order_Status os ON o.status_id = os.status_id
-        JOIN Order_Details od ON o.order_id = od.order_id
-        WHERE o.user_id = ?
-        ORDER BY o.order_date DESC";
+$sql = "SELECT od.detail_id, od.order_id, od.product_id, od.quantity, 
+             p.product_name, p.price, p.image_url, o.order_date
+     FROM order_details od
+     JOIN orders o ON od.order_id = o.order_id
+     JOIN products p ON od.product_id = p.product_id
+     WHERE o.user_id = ?
+     ORDER BY o.order_date DESC";
+
 
     $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        die("SQL Error: " . $conn->error); // Show actual error
+    }
+
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -23,6 +35,7 @@ try {
     $error_message = "Error fetching orders: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -198,61 +211,61 @@ try {
         </div>
     </nav>
 
-    <div class="home-content">
-        <div class="order-list-container">
-            <div class="order-header">
-                <h2>My Orders</h2>
-            </div>
+<div class="home-content">
+    <div class="order-list-container">
+        <div class="order-header">
+            <h2>My Orders</h2>
+        </div>
 
-            <?php if (isset($error_message)): ?>
-                <p style="color: red;"><?php echo $error_message; ?></p>
-            <?php elseif (empty($orders)): ?>
-                <p class="no-orders-message">No orders found.</p>
-            <?php else: ?>
+        <?php if (isset($error_message)): ?>
+            <p style="color: red;"><?php echo $error_message; ?></p>
+        <?php elseif (empty($orders)): ?>
+            <p class="no-orders-message">No orders found.</p>
+        <?php else: ?>
                 <?php foreach ($orders as $order): ?>
                     <div class="order-item">
                         <div class="order-item-details">
                             <p><strong>Order ID:</strong> <?php echo htmlspecialchars($order['order_id']); ?></p>
-                            <p><strong>Customer Name:</strong> <?php echo htmlspecialchars($order['customer_name']); ?></p>
-                            <p><strong>Date:</strong> <?php echo htmlspecialchars(date('F j, Y, g:i a', strtotime($order['order_date']))); ?></p>
-                            <p><strong>Flavor:</strong> <?php echo htmlspecialchars($order['flavor']); ?></p>
-                            <p><strong>Size:</strong> <?php echo htmlspecialchars($order['size']); ?></p>
+                            <p><strong>Order Date:</strong> <?php echo htmlspecialchars(date('F j, Y, g:i a', strtotime($order['order_date']))); ?></p>
+                            <p><strong>Product Name:</strong> <?php echo htmlspecialchars($order['product_name']); ?></p>
                             <p><strong>Quantity:</strong> <?php echo htmlspecialchars($order['quantity']); ?></p>
-                            <p><strong>Status:</strong> <?php echo htmlspecialchars($order['status_name']); ?></p>
+                            <p><strong>Price:</strong> ₱<?php echo number_format($order['price'], 2); ?></p>
+                            
+                            <!-- Display the product image below the product name -->
+                            <p><strong>Product Image:</strong></p>
+                            <img src="<?php echo isset($order['image_url']) ? htmlspecialchars($order['image_url']) : 'default_image.jpg'; ?>" alt="Product Image" width="80" height="80" />
                         </div>
-                        <div class="order-item-price">
-                            ₱<?php echo number_format($order['total_amount'], 2); ?>
-                        </div>
+
                     </div>
                 <?php endforeach; ?>
 
-                <!-- Order Summary Table Card -->
-                <div class="order-summary-card">
-                    <h3>Order Summary</h3>
-                    <table class="order-summary-table">
-                        <thead>
+
+            <!-- Order Summary Table Card -->
+            <div class="order-summary-card">
+                <h3>Order Summary</h3>
+                <table class="order-summary-table">
+                    <thead>
                         <tr>
-                            <th>Item</th>
+                            <th>Product Name</th>
                             <th>Date Ordered</th>
                             <th>Price</th>
-                            <th>Status</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         <?php foreach ($orders as $order): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($order['flavor']) . ' (' . htmlspecialchars($order['size']) . ')'; ?></td>
+                                <td><?php echo htmlspecialchars($order['product_name']); ?></td>
                                 <td><?php echo htmlspecialchars(date('M d, Y', strtotime($order['order_date']))); ?></td>
-                                <td>₱<?php echo number_format($order['total_amount'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($order['status_name']); ?></td>
+                                <td>₱<?php echo number_format($order['price'], 2); ?></td>
                             </tr>
                         <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     </div>
+</div>
+
 </section>
 
 <script>

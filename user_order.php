@@ -1,28 +1,74 @@
 <?php
-require_once 'config.php'; // Include your database connection
+require_once 'config.php'; // Database connection
+session_start();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Sanitize and validate form input
-    $user_id = intval($_POST['user_id']);
-    $product_id = intval($_POST['product_id']);
-    $quantity = intval($_POST['quantity']);
+// Redirect if user not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Get all products
+$products = $conn->query("SELECT product_id, product_name, price FROM products");
+if (!$products) {
+    die("Failed to fetch products: " . $conn->error);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+    echo "Product ID: " . $product_id; // Add this line to debug
+    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
     $order_date = date("Y-m-d H:i:s");
 
-    // Prepare and execute the SQL statement
-    $sql = "INSERT INTO orders (user_id, product_id, quantity, order_date) VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iiis", $user_id, $product_id, $quantity, $order_date);
+    if ($product_id > 0 && $quantity > 0) {
+        // Fetch product price
+        $product_query = "SELECT price FROM products WHERE product_id = ?";
+        $stmt = $conn->prepare($product_query);
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $stmt->bind_result($price);
+        $stmt->fetch();
+        $stmt->close();
 
-    if ($stmt->execute()) {
-        // Redirect to confirmation or same page
-        header("Location: user_orders.php?success=1");
-        exit();
+        if ($price) {
+            $total_amount = $price * $quantity;
+
+            // Insert into orders table
+            $query = "INSERT INTO orders (user_id, order_date, total_amount, product_id, quantity) VALUES (?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("isdii", $user_id, $order_date, $total_amount, $product_id, $quantity);
+
+
+            if ($stmt->execute()) {
+                $order_id = $stmt->insert_id; // Get the inserted order_id
+                $stmt->close();
+
+                // Insert into order_details table
+                $details_query = "INSERT INTO order_details (order_id, product_id, quantity, price, order_date) 
+                                  VALUES (?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($details_query);
+                $stmt->bind_param("iiids", $order_id, $product_id, $quantity, $price, $order_date);
+
+                if ($stmt->execute()) {
+                    $stmt->close();
+                    header("Location: user_order.php?success=1");
+                    exit();
+                } else {
+                    echo "Error inserting order details: " . $stmt->error;
+                    $stmt->close();
+                }
+            } else {
+                echo "Error placing order: " . $stmt->error;
+                $stmt->close();
+            }
+        } else {
+            echo "Product not found.";
+        }
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Please select a product and enter a valid quantity.";
     }
-
-    $stmt->close();
-    $conn->close();
 }
 ?>
 
@@ -43,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
     <ul class="nav-links">
       <li><a href="user_dashboard.php"><i class="bx bx-grid-alt"></i><span class="links_name">Dashboard</span></a></li>
-      <li><a href="user_orders.php"><i class="bx bx-box"></i><span class="links_name">  Order Milk Tea</span></a></li>
+      <li><a href="user_order.php"><i class="bx bx-box"></i><span class="links_name">Order Milk Tea</span></a></li>
       <li><a href="user_myorders.php" class="active"><i class="bx bx-cart"></i><span class="links_name">My Orders</span></a></li>
       <li><a href="user_favorites.php"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Favorites</span></a></li>
       <li><a href="user_settings.php"><i class="bx bx-cog"></i><span class="links_name">Settings</span></a></li>
@@ -64,7 +110,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       </div>
     </nav>
 
-    <div class="home-content">
+<div class="home-content">
+  <!-- Success Modal -->
+  <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+    <div id="successModal" class="modal" style="display: flex;">
+      <div class="modal-content">
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+        <h2>🎉 Order Successful!</h2>
+        <p>Your milk tea order has been placed. We’re already working on it!</p>
+        <a href="user_myorders.php">
+          <button>View My Orders</button>
+        </a>
+      </div>
+    </div>
+  <?php endif; ?>
+
       <div class="center-btn">
         <button id="addOrderBtn" class="add-product-btn">Add User Order</button>
       </div>
@@ -72,25 +132,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="add-product" id="addOrderForm" style="display: none; position: relative;">
         <button class="close-btn" id="closeFormBtn" title="Close Form">✖</button>
         <h3 class="form-title">Place New Order</h3>
-        <form action="" method="POST" class="product-form">
-          <div class="form-group">
-            <label for="user_id">User ID</label>
-            <input type="number" id="user_id" name="user_id" required placeholder="Enter User ID" />
-          </div>
-          <div class="form-group">
-            <label for="product_id">Product ID</label>
-            <input type="number" id="product_id" name="product_id" required placeholder="Enter Product ID" />
-          </div>
-          <div class="form-group">
-            <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" name="quantity" required placeholder="Enter Quantity" />
-          </div>
-          <button type="submit" class="btn-save">Place Order</button>
+        <form action="user_order.php" method="POST" class="product-form">
+            <!-- Automatically set user_id if logged in -->
+            <input type="hidden" name="user_id" value="<?= $user_id ?>" />
+
+            <div class="form-group">
+                <label for="product_id">Select Product</label>
+            <select id="product_id" name="product_id" required>
+                <option value="">-- Choose a product --</option>
+                <?php while ($row = $products->fetch_assoc()): ?>
+                    <option value="<?= $row['product_id'] ?>">
+                        <?= htmlspecialchars($row['product_name']) ?> - ₱<?= number_format($row['price'], 2) ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
+
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" required placeholder="Enter Quantity" />
+            </div>
+
+            <button type="submit" class="btn-save">Place Order</button>
         </form>
+
       </div>
     </div>
   </section>
-
   <script>
     // Show the form
     document.getElementById('addOrderBtn').addEventListener('click', function () {
@@ -102,6 +171,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Hide the form when X button is clicked
     document.getElementById('closeFormBtn').addEventListener('click', function () {
       document.getElementById('addOrderForm').style.display = 'none';
+    });
+
+    // Close modal
+    document.getElementById('closeModalBtn').addEventListener('click', function () {
+      document.getElementById('successModal').style.display = 'none';
     });
 
     // Sidebar toggle
@@ -137,6 +211,81 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .add-product-btn:hover {
       background-color: #4e38c1;
     }
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content h2 {
+  color: #2d3436;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.modal-content p {
+  color: #636e72;
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.modal-content button {
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #4e38c1;
+}
+
+.close-btn {
+  color: #d63031;
+  font-size: 24px;
+  font-weight: bold;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
   </style>
 </body>
 </html>

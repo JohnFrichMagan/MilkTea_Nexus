@@ -1,3 +1,45 @@
+<?php
+// Start the session to get the admin's details
+session_start();
+
+// Database connection (update with your connection details)
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "milktea_nexus_db"; // Change to your database name
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Query to fetch product and order details
+$sql = "SELECT 
+            p.product_id, 
+            p.product_name, 
+            p.category, 
+            p.price AS product_price, 
+            p.stock_quantity, 
+            p.image_url, 
+            od.quantity AS order_quantity, 
+            od.price AS order_price, 
+            o.order_date, 
+            u.username, 
+            u.email
+        FROM 
+            order_details od
+        JOIN 
+            orders o ON od.order_id = o.order_id
+        JOIN 
+            users u ON o.user_id = u.id
+        JOIN 
+            products p ON od.product_id = p.product_id
+        ORDER BY 
+            o.order_date DESC";
+
+$result = $conn->query($sql);
+?>
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -40,7 +82,7 @@
         </div>
         <ul class="nav-links">
             <li>
-                <a href="" class="active">
+                <a href="admin_dashboard.php" class="active">
                     <i class="bx bx-grid-alt"></i>
                     <span class="links_name">Dashboard</span>
                 </a>
@@ -89,6 +131,7 @@
             </li>
         </ul>
     </div>
+
     <section class="home-section">
         <nav>
             <div class="sidebar-button">
@@ -99,19 +142,18 @@
                 <input type="text" placeholder="Search..." />
                 <i class="bx bx-search"></i>
             </div>
-           <div class="profile-details">
-    <?php if (isset($_SESSION["email"])): ?>
-        <span class="admin_name"><?php echo htmlspecialchars($_SESSION["email"]); ?></span>
-    <?php else: ?>
-        <span class="admin_name">Guest</span>
-    <?php endif; ?>
-    <div class="profile-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-        </svg>
-    </div>
-</div>
-
+            <div class="profile-details">
+                <?php if (isset($_SESSION["email"])): ?>
+                    <span class="admin_name"><?php echo htmlspecialchars($_SESSION["email"]); ?></span>
+                <?php else: ?>
+                    <span class="admin_name">Guest</span>
+                <?php endif; ?>
+                <div class="profile-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
+                    </svg>
+                </div>
+            </div>
         </nav>
 
         <div class="home-content">
@@ -161,97 +203,73 @@
                     <i class="bx bxs-cart-download cart four"></i>
                 </div>
             </div>
+<div class="sales-boxes">
+    <div class="recent-sales box">
+        <div class="title">Recent Sales</div>
+        <div class="sales-details">
+            <!-- Table to display the recent sales -->
+            <table class="sales-table">
+                <thead>
+                    <tr>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Order Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // SQL query to get recent sales with product details
+                    $query = "
+                        SELECT od.order_date, p.image_url, p.product_name, od.price
+                        FROM order_details od
+                        JOIN products p ON od.product_id = p.product_id
+                        ORDER BY od.order_date DESC
+                        LIMIT 5
+                    ";
 
-            <div class="sales-boxes">
-                <div class="recent-sales box">
-                    <div class="title">Recent Sales</div>
-                    <div class="sales-details">
-                        <ul class="details">
-                            <li class="topic">Date Order</li>
-                            <li><a href="#">01-10-2025</a></li>
-                            <li><a href="#">01-15-2025</a></li>
-                            <li><a href="#">01-20-2025</a></li>
-                            <li><a href="#">01-15-2025</a></li>
-                            <li><a href="#">01-300-2025</a></li>
-                            <li><a href="#">02-04-2025</a></li>
-                            <li><a href="#">02-10-2025</a></li>
-                            <li><a href="#">03-05-2025</a></li>
-                            <li><a href="#">03-10-2025</a></li>
-                        </ul>
-                        <ul class="details">
-                            <li class="topic">Status</li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Returned</a></li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Returned</a></li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Delivered</a></li>
-                        </ul>
-                        <ul class="details">
-                            <li class="topic">Total</li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱90</a></li>
-                            <li><a href="#">₱95</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱95</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱90</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱95</a></li>
-                        </ul>
-                    </div>
-                    <div class="button">
-                        <a href="#">See All</a>
-                    </div>
-                </div>
+                    if ($result = $conn->query($query)) {
+                        // Check if there are any rows
+                        if ($result->num_rows > 0) {
+                            // Loop through the rows and display the details
+                            while ($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td><img src='" . $row['image_url'] . "' alt='Product Image' style='width: 40px; height: 40px;'></td>";
+                                echo "<td>" . $row['product_name'] . "</td>";
+                                echo "<td>" . $row['order_date'] . "</td>";
+                                echo "<td>₱" . number_format($row['price'], 2) . "</td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='4'>No recent sales</td></tr>";
+                        }
+                    } else {
+                        // If the query failed, display an error message
+                        echo "<tr><td colspan='4'>Error in query: " . $conn->error . "</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
                 <div class="top-sales box">
-                    <div class="title">Top Seling Product</div>
+                    <div class="title">Top Selling Product</div>
                     <ul class="top-sales-details">
-                        <li>
-                            <a href="#">
-                                <img src="images/chocolateBubbleTea.jpg" alt="" />
-                                <span class="product">Chocolate Bubble Tea</span>
-                            </a>
-                            <span class="price">₱ 100</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/boba.jpg" alt="" />
-                                <span class="product">Boba Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/purple boba.jpg" alt="" />
-                                <span class="product">Purple Boba Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 90</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/taro.jpg" alt="" />
-                                <span class="product">Taro Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/strawberry.jpg" alt="" />
-                                <span class="product">Stawberry Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 100</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/matcha.jpg" alt="" />
-                                <span class="product">Match Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
+                        <?php
+                        // Loop through products to display top-selling items (you may need to adjust this logic)
+                        $result = $conn->query("SELECT * FROM products ORDER BY stock_quantity DESC LIMIT 5");
+                        while ($product = $result->fetch_assoc()) {
+                            echo "<li>";
+                            echo "<a href='#'>";
+                            echo "<img src='" . $product['image_url'] . "' alt='' />";
+                            echo "<span class='product'>" . $product['product_name'] . "</span>";
+                            echo "</a>";
+                            echo "<span class='price'>₱" . $product['price'] . "</span>";
+                            echo "</li>";
+                        }
+                        ?>
                     </ul>
                 </div>
             </div>
@@ -261,14 +279,19 @@
     <script>
         let sidebar = document.querySelector(".sidebar");
         let sidebarBtn = document.querySelector(".sidebarBtn");
-        if (sidebarBtn) {
-            sidebarBtn.onclick = function () {
-                sidebar.classList.toggle("active");
-                if (sidebar.classList.contains("active")) {
-                    sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
-                } else sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
-            };
-        }
+        sidebarBtn.onclick = function () {
+            sidebar.classList.toggle("active");
+            if (sidebar.classList.contains("active")) {
+                sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+            } else {
+                sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+            }
+        };
     </script>
 </body>
 </html>
+
+<?php
+// Close connection
+$conn->close();
+?>

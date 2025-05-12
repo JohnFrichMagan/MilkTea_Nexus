@@ -1,10 +1,51 @@
 <?php
 require_once 'config.php';
 
+$editingProduct = null;
+
+// Handle Delete
+if (isset($_GET['delete'])) {
+    $idToDelete = intval($_GET['delete']);
+    $conn->query("DELETE FROM products WHERE product_id = $idToDelete");
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Handle Edit (Fetch product)
+if (isset($_GET['edit'])) {
+    $id = intval($_GET['edit']);
+    $result = $conn->query("SELECT * FROM products WHERE product_id = $id");
+    $editingProduct = $result->fetch_assoc();
+}
+
+// Handle Add or Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $productName = $_POST['productName'];
+    $category = $_POST['category'];
+    $price = $_POST['price'];
+    $stock = $_POST['stock'];
+    $imageUrl = $_POST['imageUrl']; // Get image URL
+
+    if (!empty($_POST['productId'])) {
+        $productId = intval($_POST['productId']);
+        $stmt = $conn->prepare("UPDATE products SET product_name = ?, category = ?, price = ?, stock_quantity = ?, image_url = ? WHERE id = ?");
+        $stmt->bind_param("ssdiis", $productName, $category, $price, $stock, $imageUrl, $productId);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO products (product_name, category, price, stock_quantity, image_url) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssdis", $productName, $category, $price, $stock, $imageUrl);
+    }
+
+    if ($stmt->execute()) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+}
+
 // Fetch all products
 $products = $conn->query("SELECT * FROM products");
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,45 +179,62 @@ $products = $conn->query("SELECT * FROM products");
         td {
             color: #555;
         }
+        td a {
+            text-decoration: none;
+            color: #6c5ce7;
+            font-size: 18px;
+        }
+
+        td a:hover {
+            color: #d63031;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="home-content">
-    <!-- Centered Add Product Button -->
     <div class="center-btn">
-        <button id="addProductBtn" class="add-product-btn">Add Product</button>
+        <button id="addProductBtn" class="add-product-btn">
+            <?= $editingProduct ? 'Edit Product' : 'Add Product' ?>
+        </button>
     </div>
 
-    <!-- Add Product Form -->
+    <!-- Add/Edit Product Form -->
     <div class="add-product" id="addProductForm">
-        <!-- X Close Button -->
         <button class="close-btn" id="closeFormBtn" title="Close Form">✖</button>
-
-        <h3 class="form-title">Add New Menu Item</h3>
+        <h3 class="form-title"><?= $editingProduct ? 'Edit Product' : 'Add New Menu Item' ?></h3>
         <form action="" method="POST" class="product-form">
+            <input type="hidden" name="productId" value="<?= $editingProduct['id'] ?? '' ?>">
             <div class="form-group">
                 <label for="productName">Product Name</label>
-                <input type="text" id="productName" name="productName" required placeholder="Enter product name" />
+                <input type="text" id="productName" name="productName" required value="<?= $editingProduct['product_name'] ?? '' ?>" />
             </div>
             <div class="form-group">
                 <label for="category">Category</label>
                 <select id="category" name="category">
-                    <option value="Milk Tea">Milk Tea</option>
-                    <option value="Latte">Latte</option>
-                    <option value="Smoothie">Smoothie</option>
-                    <option value="Coffee">Coffee</option>
+                    <?php
+                    $categories = ['Milk Tea', 'Latte', 'Smoothie', 'Coffee'];
+                    foreach ($categories as $cat) {
+                        $selected = ($editingProduct['category'] ?? '') === $cat ? 'selected' : '';
+                        echo "<option value=\"$cat\" $selected>$cat</option>";
+                    }
+                    ?>
                 </select>
             </div>
             <div class="form-group">
                 <label for="price">Price (₱)</label>
-                <input type="number" id="price" name="price" required placeholder="Enter price" />
+                <input type="number" id="price" name="price" step="0.01" required value="<?= $editingProduct['price'] ?? '' ?>" />
             </div>
             <div class="form-group">
                 <label for="stock">Stock Quantity</label>
-                <input type="number" id="stock" name="stock" required placeholder="Enter stock quantity" />
+                <input type="number" id="stock" name="stock" required value="<?= $editingProduct['stock_quantity'] ?? '' ?>" />
             </div>
-            <button type="submit" class="btn-save">Add Menu Item</button>
+            <div class="form-group">
+                <label for="imageUrl">Product Image (URL)</label>
+                <input type="url" id="imageUrl" name="imageUrl" value="<?= $editingProduct['image_url'] ?? '' ?>" />
+            </div>
+            <button type="submit" class="btn-save"><?= $editingProduct ? 'Update Product' : 'Add Menu Item' ?></button>
         </form>
     </div>
 
@@ -191,16 +249,29 @@ $products = $conn->query("SELECT * FROM products");
                     <th>Category</th>
                     <th>Price (₱)</th>
                     <th>Stock</th>
+                    <th>Image</th>
+                    <th style="text-align: right;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = $products->fetch_assoc()): ?>
                     <tr>
-                        <td><?= $row['id'] ?></td>
+                        <td><?= $row['product_id'] ?></td>
                         <td><?= htmlspecialchars($row['product_name']) ?></td>
                         <td><?= htmlspecialchars($row['category']) ?></td>
                         <td>₱<?= number_format($row['price'], 2) ?></td>
-                        <td><?= $row['stock'] ?></td>
+                        <td><?= $row['stock_quantity'] ?></td>
+                        <td>
+                            <?php if (!empty($row['image_url'])): ?>
+                                <img src="<?= $row['image_url'] ?>" alt="Product Image" width="100" />
+                            <?php else: ?>
+                                No Image Available
+                            <?php endif; ?>
+                        </td>
+                        <td class="actions">
+                            <a href="?edit=<?= $row['product_id'] ?>" title="Edit" style="margin-right: 10px; font-size: 18px;">✏️</a>
+                            <a href="?delete=<?= $row['product_id'] ?>" title="Delete" onclick="return confirm('Are you sure you want to delete this product?');" style="font-size: 18px;">🗑️</a>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -208,13 +279,18 @@ $products = $conn->query("SELECT * FROM products");
     </div>
 </div>
 
+<?php if ($editingProduct): ?>
 <script>
-    // Show the form when Add Product button is clicked
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('addProductForm').style.display = 'block';
+    });
+</script>
+<?php endif; ?>
+
+<script>
     document.getElementById('addProductBtn').addEventListener('click', function () {
         document.getElementById('addProductForm').style.display = 'block';
     });
-
-    // Close the form when the Close button is clicked
     document.getElementById('closeFormBtn').addEventListener('click', function () {
         document.getElementById('addProductForm').style.display = 'none';
     });
@@ -222,3 +298,4 @@ $products = $conn->query("SELECT * FROM products");
 
 </body>
 </html>
+

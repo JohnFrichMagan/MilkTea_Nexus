@@ -1,5 +1,5 @@
 <?php
-// admin_register.php
+// staff_register.php
 require_once 'config.php'; // Include your database connection
 
 $register_error = ''; // Initialize error message
@@ -23,7 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $register_error = "Passwords do not match.";
     } else {
         try {
-            $sql = "SELECT COUNT(*) FROM Admins WHERE username = ? OR email = ?";
+            // Check if the username or email is already taken for a staff member
+            $sql = "SELECT COUNT(*) FROM Staff WHERE username = ? OR email = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $username, $email);
             $stmt->execute();
@@ -35,12 +36,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $register_error = "This username or email is already registered.";
             } else {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $sql = "INSERT INTO Admins (username, email, password) VALUES (?, ?, ?)";
+                $sql = "INSERT INTO Staff (username, email, password) VALUES (?, ?, ?)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("sss", $username, $email, $hashed_password);
                 $stmt->execute();
 
-                header("Location: admin_login.php?registration=success");
+                // Redirect to the staff login page after successful registration
+                header("Location: staff_login.php?registration=success");
                 exit();
             }
             $conn->close();
@@ -56,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Signup</title>
+    <title>Staff Signup</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
@@ -174,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .form-group a {
-            color: #0061D0;
+            color: #00bcd4;
             text-decoration: none;
             font-size: 14px;
             display: block;
@@ -192,31 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-bottom: 15px;
         }
 
-        .form-group .admin-login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .form-group .already-admin-text {
-            font-size: 14px;
-            color: #0D0C0C;
-        }
-
-        .form-group .admin-login-btn {
-            color: #0061D0;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: bolder;
-        }
-
-        .form-group .admin-login-btn:hover {
-            text-decoration: underline;
-        }
-
-       .text-link {
+               .text-link {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -239,46 +217,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <div class="register-switch">
-            <button onclick="window.location.href='admin_register.php'" class="switch-btn active">Admin Register</button>
-            <button onclick="window.location.href='staff_register.php'" class="switch-btn">Staff Register</button>
+            <button onclick="window.location.href='admin_register.php'" class="switch-btn">Admin Register</button>
+            <button onclick="window.location.href='staff_register.php'" class="switch-btn active">Staff Register</button>
         </div>
 
-        <h2>Admin Signup</h2>
+        <h2>Staff Signup</h2>
         <?php if (!empty($register_error)): ?>
             <div class="error-message"><?php echo htmlspecialchars($register_error); ?></div>
         <?php endif; ?>
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
             </div>
             <div class="form-group">
-                <label for="email">Admin Email</label>
+                <label for="email">Staff Email</label>
                 <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required>
             </div>
             <div class="form-group">
-                <label for="password">Create Admin Password</label>
+                <label for="password">Create Staff Password</label>
                 <div class="password-input-container">
                     <input type="password" id="password" name="password" required>
                     <i class="bx bx-show password-toggle-icon" id="password-toggle"></i>
                 </div>
             </div>
             <div class="form-group">
-                <label for="confirm_password">Confirm Admin Password</label>
+                <label for="confirm_password">Confirm Staff Password</label>
                 <div class="password-input-container">
                     <input type="password" id="confirm_password" name="confirm_password" required>
                     <i class="bx bx-show password-toggle-icon" id="confirm-password-toggle"></i>
                 </div>
             </div>
             <div class="form-group">
-                <button type="submit">Register Admin</button>
+                <button type="submit">Register Staff</button>
             </div>
             <div class="text-link">
-    <span>Already an admin?</span>
-    <a href="admin_login.php">Admin Login</a>
+    <span>Already an staff?</span>
+    <a href="staff_login.php">Staff Login</a>
 </div>
 
-            </div>
         </form>
     </div>
 

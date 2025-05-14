@@ -148,7 +148,7 @@
                 <li><a href="#">Contact Us</a></li>
             </ul>
         </nav>
-        <a href="admin_login.php" class="login-button">Admin Login</a>
+        <a href="admin_login.php" class="login-button">Admin & Staff Login</a>
     </header>
 
     <main>

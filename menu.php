@@ -92,7 +92,7 @@ $conn->close();
 
         <div class="home-content">
             <div class="center-btn">
-                <button id="addProductBtn" class="add-product-btn">Add Product</button>
+                <button id="addProductBtn" class="add-product-btn">Add Incoming Product</button>
             </div>
 
             <div class="add-product" id="addProductForm" style="display:none;">

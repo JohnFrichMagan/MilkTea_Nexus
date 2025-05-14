@@ -5,9 +5,7 @@ require_once 'config.php'; // Include your database connection
 $register_error = ''; // Initialize error message
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // **THIS LINE SHOULD BE THE VERY FIRST ONE INSIDE THE IF BLOCK**
     $username = $_POST["username"];
-
     $email = $_POST["email"];
     $password = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];
@@ -25,9 +23,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $register_error = "Passwords do not match.";
     } else {
         try {
-            // Check if the username or email is already taken for an admin
             $sql = "SELECT COUNT(*) FROM Admins WHERE username = ? OR email = ?";
-            $stmt = $conn->prepare($sql); // Use $conn from config.php
+            $stmt = $conn->prepare($sql);
             $stmt->bind_param("ss", $username, $email);
             $stmt->execute();
             $stmt->bind_result($user_exists);
@@ -37,23 +34,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($user_exists) {
                 $register_error = "This username or email is already registered.";
             } else {
-                // Hash the password before storing it in the database
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                // Insert the new admin user into the Admins table, including username
                 $sql = "INSERT INTO Admins (username, email, password) VALUES (?, ?, ?)";
-                $stmt = $conn->prepare($sql); // Use $conn from config.php
+                $stmt = $conn->prepare($sql);
                 $stmt->bind_param("sss", $username, $email, $hashed_password);
                 $stmt->execute();
 
-                // Redirect to the admin login page after successful registration
                 header("Location: admin_login.php?registration=success");
                 exit();
             }
-            $conn->close(); // Close the connection
-
+            $conn->close();
         } catch (Exception $e) {
-            // Handle database errors
             $register_error = "Database error: " . $e->getMessage();
         }
     }
@@ -67,10 +58,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Signup</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e0f7fa; /* A different background color to distinguish */
+            background-color: #e0f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -88,9 +80,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             max-width: 100%;
         }
 
+        .register-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .switch-btn {
+            background-color: #b0bec5;
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .switch-btn.active,
+        .switch-btn:hover {
+            background-color: #00bcd4;
+            color: white;
+        }
+
         h2 {
             text-align: center;
-            color: #00bcd4; /* A different color for the heading */
+            color: #00bcd4;
             margin-bottom: 24px;
         }
 
@@ -101,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #00897b; /* A different label color */
+            color: #00897b;
             font-weight: 500;
             font-size: 14px;
         }
@@ -142,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .form-group button {
-            background-color: #00bcd4; /* A different button color */
+            background-color: #00bcd4;
             color: white;
             padding: 12px;
             border: none;
@@ -158,7 +174,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .form-group a {
-            color: #00bcd4; /* A different link color */
+            color: #00bcd4;
             text-decoration: none;
             font-size: 14px;
             display: block;
@@ -180,9 +196,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="container">
+        <div class="register-switch">
+            <button onclick="window.location.href='admin_register.php'" class="switch-btn active">Admin Register</button>
+            <button onclick="window.location.href='staff_register.php'" class="switch-btn">Staff Register</button>
+        </div>
+
         <h2>Admin Signup</h2>
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
@@ -216,6 +236,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
         </form>
     </div>
+
     <script>
         const passwordInput1 = document.getElementById("password");
         const passwordToggleIcon1 = document.getElementById("password-toggle");

@@ -2,11 +2,12 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8" />
-    <title>Responsive User Dashboard | MILKTEA NEXUS</title>
+    <title>Responsive Staff Dashboard | MILKTEA NEXUS</title>
     <link rel="stylesheet" href="style.css" />
     <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
+        /* Style similar to the user dashboard */
         .profile-details {
             display: flex;
             align-items: center;
@@ -29,6 +30,7 @@
             height: 20px;
             fill: currentColor;
         }
+
         .profile-details {
             display: flex;
             justify-content: center;
@@ -53,30 +55,32 @@
             fill: rgba(0, 0, 0, 0.7);
         }
 
-        /* Style for the product grid */
-        .top-sales-details {
+        .sales-boxes {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
 
-        .top-sales-details li {
-            list-style-type: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+        .box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .top-sales-details img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .price {
+        .title {
             font-size: 1.2rem;
-            color: #333;
-            margin-top: 5px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .links_name {
+            margin-left: 10px;
+        }
+
+        .log_out a {
+            text-decoration: none;
+            color: #f44336;
         }
     </style>
 </head>
@@ -88,33 +92,27 @@
         </div>
         <ul class="nav-links">
             <li>
-                <a href="" class="active">
+                <a href="staff_dashboard.php" class="active">
                     <i class="bx bx-grid-alt"></i>
                     <span class="links_name">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="user_order.php">
-                    <i class="bx bx-box"></i>
-                    <span class="links_name">Order Milk Tea</span>
+                <a href="staff_financial_report.php">
+                    <i class="bx bx-bar-chart-alt-2"></i>
+                    <span class="links_name">Financial Report</span>
                 </a>
             </li>
             <li>
-                <a href="user_myorders.php">
-                    <i class="bx bx-pie-chart-alt-2"></i>
-                    <span class="links_name">My Orders</span>
+                <a href="staff_customer_orders.php">
+                    <i class="bx bx-cart-alt"></i>
+                    <span class="links_name">Customer Orders</span>
                 </a>
             </li>
             <li>
-                <a href="user_favorites.php">
-                    <i class="bx bx-line-chart"></i>
-                    <span class="links_name">Favorites</span>
-                </a>
-            </li>
-            <li>
-                <a href="user_settings.php">
+                <a href="staff_settings.php">
                     <i class="bx bx-cog"></i>
-                    <span class="links_name">Setting</span>
+                    <span class="links_name">Settings</span>
                 </a>
             </li>
             <li class="log_out">
@@ -138,36 +136,25 @@
             </div>
             <div class="profile-details">
                 <img src="images/admin.jpg" alt="" />
-                <span class="admin_name">User</span>
+                <span class="admin_name">Staff</span>
                 <i class="bx bx-chevron-down"></i>
             </div>
         </nav>
 
         <div class="home-content">
-            <!-- Your overview boxes here (unchanged) -->
-
             <div class="sales-boxes">
-                <div class="top-sales box">
-                    <div class="title">Top Selling Product</div>
-                    <ul class="top-sales-details">
-                        <?php
-                        // Assuming you're fetching products from the database
-                        // Replace this with actual database connection and query
-                        $db = new PDO("mysql:host=localhost;dbname=milktea", "root", ""); // Example DB connection
-                        $products = $db->query("SELECT * FROM products"); // Fetching all products
-
-                        while ($product = $products->fetch(PDO::FETCH_ASSOC)) {
-                            echo '
-                            <li>
-                                <a href="#">
-                                    <img src="' . $product['image'] . '" alt="" />
-                                    <span class="product">' . $product['name'] . '</span>
-                                </a>
-                                <span class="price">₱ ' . $product['price'] . '</span>
-                            </li>';
-                        }
-                        ?>
-                    </ul>
+                <!-- Example of overview boxes for Financial Report and Customer Orders -->
+                <div class="box">
+                    <div class="title">Total Sales</div>
+                    <div class="number">₱500,000</div>
+                </div>
+                <div class="box">
+                    <div class="title">Pending Orders</div>
+                    <div class="number">30</div>
+                </div>
+                <div class="box">
+                    <div class="title">Total Customers</div>
+                    <div class="number">150</div>
                 </div>
             </div>
         </div>

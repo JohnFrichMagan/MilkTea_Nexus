@@ -1,18 +1,16 @@
 <?php
-// admin_login.php
 session_start();
 require_once 'config.php'; // Include your database connection
 
-$login_error = ''; // Initialize error message
-$email = ''; // Initialize email variable to avoid undefined variable warning
+$login_error = '';
+$email = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    // Use prepared statements to prevent SQL injection
     $sql = "SELECT id, email, password FROM Admins WHERE email = ?";
-    $stmt = $conn->prepare($sql); // Use $conn from config.php
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -20,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $admin = $result->fetch_assoc();
         if (password_verify($password, $admin['password'])) {
-            // Password is correct. Set admin session variables and redirect to the admin dashboard
             $_SESSION["admin_loggedin"] = true;
             $_SESSION["admin_id"] = $admin["id"];
             $_SESSION["admin_email"] = $admin["email"];
@@ -33,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $login_error = "Invalid admin email.";
     }
     $stmt->close();
-    $conn->close(); // Close the connection
+    $conn->close();
 }
 ?>
 
@@ -48,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e0f7fa; /* A different background color for admin area */
+            background-color: #e0f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -60,15 +57,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .container {
             background-color: #E2AD7E;
             border-radius: 12px;
-            padding: 80px;
+            padding: 60px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 400px;
             max-width: 100%;
         }
 
+        .login-switch {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .switch-btn {
+            background-color: #b0bec5;
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .switch-btn.active,
+        .switch-btn:hover {
+            background-color: #00bcd4;
+            color: white;
+        }
+
         h2 {
             text-align: center;
-            color:rgb #000000; /* A different heading color for admin */
+            color: #000000;
             margin-bottom: 24px;
         }
 
@@ -79,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #0D0C0C; /* A different label color for admin */
+            color: #0D0C0C;
             font-weight: 500;
             font-size: 18px;
         }
@@ -119,11 +140,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 20px;
         }
 
-        .form-group.forgot-password { /* Added this style rule */
+        .form-group.forgot-password {
             text-align: center;
         }
 
-        .form-group.forgot-password a { /* Modified this style rule */
+        .form-group.forgot-password a {
             display: inline-block;
             color: #0061D0;
             text-decoration: none;
@@ -136,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .form-group button {
-            background-color: #00bcd4; /* A different button color for admin */
+            background-color: #00bcd4;
             color: white;
             padding: 12px;
             border: none;
@@ -167,11 +188,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .signup-link a:hover {
             text-decoration: underline;
         }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="login-switch">
+            <button onclick="window.location.href='admin_login.php'" class="switch-btn active">Admin Login</button>
+            <button onclick="window.location.href='staff_login.php'" class="switch-btn">Staff Login</button>
+        </div>
+
         <h2>Admin Login</h2>
+        <?php if (!empty($login_error)): ?>
+            <div class="error-message"><?php echo htmlspecialchars($login_error); ?></div>
+        <?php endif; ?>
         <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <div class="form-group">
                 <label for="email">Admin Email</label>
@@ -184,14 +219,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <i class="bx bx-show password-toggle-icon" id="password-toggle"></i>
                 </div>
             </div>
-            <div class="form-group forgot-password"> <a href="#">Forgot admin password?</a>
+            <div class="form-group forgot-password">
+                <a href="#">Forgot admin password?</a>
             </div>
             <div class="form-group">
                 <button type="submit">Admin Login</button>
             </div>
         </form>
         <div class="signup-link">
-           Don't have an admin account? <a href="admin_register.php">Admin Signup</a>
+            Don't have an admin account? <a href="admin_register.php">Admin Signup</a>
         </div>
     </div>
 
@@ -199,7 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const passwordInput = document.getElementById("password");
         const passwordToggleIcon = document.getElementById("password-toggle");
 
-        passwordToggleIcon.addEventListener("click", function() {
+        passwordToggleIcon.addEventListener("click", function () {
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
                 this.classList.remove("bx-show");

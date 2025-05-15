@@ -23,55 +23,53 @@ if ($conn->connect_error) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         .sales-details {
-        overflow-x: auto;
-    }
-
-    .sales-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-
-    .sales-table th, .sales-table td {
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid #ddd;
-        white-space: nowrap;
-    }
-
-    .sales-table th {
-        background-color: #f5f5f5;
-        font-weight: bold;
-        color: #333;
-    }
-
-    .sales-table tr:hover {
-        background-color: #f0f0f0;
-    }
-
-    .sales-table img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 6px;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 12px;
-        background-color: #ffcc00;
-        color: #333;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    @media screen and (max-width: 768px) {
-        .sales-table th, .sales-table td {
-            padding: 8px;
-            font-size: 12px;
+            overflow-x: auto;
         }
-    }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .sales-table th, .sales-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        .sales-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .sales-table tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .sales-table img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @media screen and (max-width: 768px) {
+            .sales-table th, .sales-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
 
         .profile-details {
             display: flex;
@@ -94,6 +92,12 @@ if ($conn->connect_error) {
             width: 20px;
             height: 20px;
             fill: currentColor;
+        }
+
+        .see-all-btn {
+            font-size: 14px;
+            color: #2196f3;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -173,7 +177,10 @@ if ($conn->connect_error) {
 
         <div class="sales-boxes">
             <div class="recent-sales box">
-                <div class="title">Recent Sales</div>
+                <div class="title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Recent Sales</span>
+                    <a href="all_orders.php" class="see-all-btn">See All</a>
+                </div>
                 <div class="sales-details">
                     <table class="sales-table">
                         <thead>
@@ -194,24 +201,38 @@ if ($conn->connect_error) {
                                     p.image_url, 
                                     p.product_name, 
                                     od.quantity, 
-                                    od.price
+                                    od.price,
+                                    o.status
                                 FROM order_details od
                                 JOIN orders o ON od.order_id = o.order_id
                                 JOIN products p ON od.product_id = p.product_id
+                                WHERE o.status IN ('Pending', 'Delivered', 'Completed')
                                 ORDER BY o.order_date DESC
-                                LIMIT 5
+                                LIMIT 20
                             ";
+
                             $result = $conn->query($query);
                             if ($result && $result->num_rows > 0) {
                                 while ($row = $result->fetch_assoc()) {
                                     $total_price = $row['price'] * $row['quantity'];
+                                    $status = htmlspecialchars($row['status']);
+                                    $color = "background-color: #ffcc00; color: #333;";
+
+                                    if (strtolower($status) === 'delivered') {
+                                        $color = "background-color: #4caf50; color: white;";
+                                    } elseif (strtolower($status) === 'completed') {
+                                        $color = "background-color: #2196f3; color: white;";
+                                    } elseif (strtolower($status) === 'cancelled') {
+                                        $color = "background-color: #f44336; color: white;";
+                                    }
+
                                     echo "<tr>";
-                                    echo "<td><img src='" . htmlspecialchars($row['image_url']) . "' style='width: 40px; height: 40px;'></td>";
+                                    echo "<td><img src='" . htmlspecialchars($row['image_url']) . "'></td>";
                                     echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";
                                     echo "<td>" . htmlspecialchars($row['order_date']) . "</td>";
                                     echo "<td>" . (int)$row['quantity'] . "</td>";
                                     echo "<td>₱" . number_format($total_price, 2) . "</td>";
-                                    echo "<td>Pending</td>";
+                                    echo "<td><span class='status-badge' style='{$color}'>" . $status . "</span></td>";
                                     echo "</tr>";
                                 }
                             } else {

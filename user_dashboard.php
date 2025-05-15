@@ -1,3 +1,10 @@
+<?php
+require_once 'config.php';
+
+// Fetch all products
+$products = $conn->query("SELECT * FROM products");
+?>
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -10,49 +17,72 @@
         .profile-details {
             display: flex;
             align-items: center;
-        }
-
-        .profile-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: #333;
-            color: #fff;
-            display: flex;
             justify-content: center;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .user-info {
+            display: flex;
             align-items: center;
-            margin-left: 8px;
         }
-
+        .user_name {
+            margin-right: 8px;
+        }
         .profile-icon svg {
-            width: 20px;
-            height: 20px;
-            fill: currentColor;
+            width: 24px;
+            height: 24px;
+            fill: rgba(0, 0, 0, 0.7);
         }
-         .profile-details {
-    display: flex; /* Enable flexbox for centering */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    /* Add any other styling for the container if needed */
-    padding: 10px; /* Example padding */
-    background-color: #f0f0f0; /* Example background color */
-    border-radius: 5px; /* Example border radius */
-}
+        /* Product cards container */
+        .products-container {
+            padding: 20px;
 
-.user-info {
-    display: flex; /* Enable flexbox for name and icon */
-    align-items: center; /* Align name and icon vertically */
-}
-
-.user_name {
-    margin-right: 8px; /* Add some space between the name and the icon */
-}
-
-.profile-icon svg {
-    width: 24px; /* Adjust the size of the icon */
-    height: 24px;
-    fill: rgba(0, 0, 0, 0.7); /* Adjust the color of the icon */
-}
+        }
+        .products-container h2 {
+            margin-top: 70px;
+            color: #000000; 
+            font-size: 50px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .product-card {
+            background: #E2AD7E;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            width: 220px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 30px;
+            transition: box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 12px;
+        }
+        .product-card h3 {
+            font-size: 1.1rem;
+            margin: 10px 0 6px;
+            color: #333;
+        }
+        .product-card p {
+            margin: 4px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        /* Sidebar and nav styles */
+        /* (Assuming your existing styles in style.css handle sidebar and nav) */
     </style>
 </head>
 <body>
@@ -100,6 +130,7 @@
             </li>
         </ul>
     </div>
+
     <section class="home-section">
         <nav>
             <div class="sidebar-button">
@@ -110,156 +141,32 @@
                 <input type="text" placeholder="Search..." />
                 <i class="bx bx-search"></i>
             </div>
-     <div class="profile-details">
-        <img src="images/admin.jpg" alt="" />
-        <span class="admin_name">User</span>
-        <i class="bx bx-chevron-down"></i>
-      </div>
-
+            <div class="profile-details">
+                <img src="images/admin.jpg" alt="User Profile" />
+                <span class="admin_name">User</span>
+                <i class="bx bx-chevron-down"></i>
+            </div>
         </nav>
 
-        <div class="home-content">
-            <div class="overview-boxes">
-                <div class="box">
-                    <div class="right-side">
-                        <div class="box-topic">Total Order</div>
-                        <div class="number">40,876</div>
-                        <div class="indicator">
-                            <i class="bx bx-up-arrow-alt"></i>
-                            <span class="text">Up from yesterday</span>
-                        </div>
+        <div class="products-container">
+            <h2>Available Products</h2>
+            <div class="product-grid">
+                <?php while ($product = $products->fetch_assoc()): ?>
+                    <div class="product-card">
+                        <?php if (!empty($product['image_url'])): ?>
+                            <img src="<?= htmlspecialchars($product['image_url']) ?>" alt="<?= htmlspecialchars($product['product_name']) ?>" />
+                        <?php else: ?>
+                            <div style="width: 100%; height: 150px; background: #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: center;">No Image</div>
+                        <?php endif; ?>
+                        <h3><?= htmlspecialchars($product['product_name']) ?></h3>
+                        <p><strong>Category:</strong> <?= htmlspecialchars($product['category']) ?></p>
+                        <p><strong>Price:</strong> ₱<?= number_format($product['price'], 2) ?></p>
+                        <p><strong>Stock:</strong> <?= intval($product['stock_quantity']) ?></p>
                     </div>
-                    <i class="bx bx-cart-alt cart"></i>
-                </div>
-                <div class="box">
-                    <div class="right-side">
-                        <div class="box-topic">Total Sales</div>
-                        <div class="number">38,876</div>
-                        <div class="indicator">
-                            <i class="bx bx-up-arrow-alt"></i>
-                            <span class="text">Up from yesterday</span>
-                        </div>
-                    </div>
-                    <i class="bx bxs-cart-add cart two"></i>
-                </div>
-                <div class="box">
-                    <div class="right-side">
-                        <div class="box-topic">Total Profit</div>
-                        <div class="number">$12,876</div>
-                        <div class="indicator">
-                            <i class="bx bx-up-arrow-alt"></i>
-                            <span class="text">Up from yesterday</span>
-                        </div>
-                    </div>
-                    <i class="bx bx-cart cart three"></i>
-                </div>
-                <div class="box">
-                    <div class="right-side">
-                        <div class="box-topic">Total Return</div>
-                        <div class="number">11,086</div>
-                        <div class="indicator">
-                            <i class="bx bx-down-arrow-alt down"></i>
-                            <span class="text">Down From Today</span>
-                        </div>
-                    </div>
-                    <i class="bx bxs-cart-download cart four"></i>
-                </div>
-            </div>
-
-            <div class="sales-boxes">
-                <div class="recent-sales box">
-                    <div class="title">Recent Sales</div>
-                    <div class="sales-details">
-                        <ul class="details">
-                            <li class="topic">Date Order</li>
-                            <li><a href="#">01-10-2025</a></li>
-                            <li><a href="#">01-15-2025</a></li>
-                            <li><a href="#">01-20-2025</a></li>
-                            <li><a href="#">01-15-2025</a></li>
-                            <li><a href="#">01-300-2025</a></li>
-                            <li><a href="#">02-04-2025</a></li>
-                            <li><a href="#">02-10-2025</a></li>
-                            <li><a href="#">03-05-2025</a></li>
-                            <li><a href="#">03-10-2025</a></li>
-                        </ul>
-                        <ul class="details">
-                            <li class="topic">Status</li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Returned</a></li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Returned</a></li>
-                            <li><a href="#">Delivered</a></li>
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Delivered</a></li>
-                        </ul>
-                        <ul class="details">
-                            <li class="topic">Total</li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱90</a></li>
-                            <li><a href="#">₱95</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱95</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱90</a></li>
-                            <li><a href="#">₱100</a></li>
-                            <li><a href="#">₱95</a></li>
-                        </ul>
-                    </div>
-                    <div class="button">
-                        <a href="#">See All</a>
-                    </div>
-                </div>
-                <div class="top-sales box">
-                    <div class="title">Top Seling Product</div>
-                    <ul class="top-sales-details">
-                        <li>
-                            <a href="#">
-                                <img src="images/chocolateBubbleTea.jpg" alt="" />
-                                <span class="product">Chocolate Bubble Tea</span>
-                            </a>
-                            <span class="price">₱ 100</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/boba.jpg" alt="" />
-                                <span class="product">Boba Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/purple boba.jpg" alt="" />
-                                <span class="product">Purple Boba Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 90</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/taro.jpg" alt="" />
-                                <span class="product">Taro Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/strawberry.jpg" alt="" />
-                                <span class="product">Stawberry Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 100</span>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <img src="images/matcha.jpg" alt="" />
-                                <span class="product">Match Milk Tea</span>
-                            </a>
-                            <span class="price">₱ 95</span>
-                        </li>
-                    </ul>
-                </div>
+                <?php endwhile; ?>
             </div>
         </div>
+
     </section>
 
     <script>

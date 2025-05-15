@@ -2,6 +2,8 @@
 require_once 'config.php'; // Database connection
 session_start();
 
+$error_message = ''; // Initialize error message variable
+
 // Redirect if user not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -11,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get all products
-$products = $conn->query("SELECT product_id, product_name, price FROM products");
+$products = $conn->query("SELECT product_id, product_name, price, stock_quantity FROM products");
 if (!$products) {
     die("Failed to fetch products: " . $conn->error);
 }
@@ -22,53 +24,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $order_date = date("Y-m-d H:i:s");
 
     if ($product_id > 0 && $quantity > 0) {
-        // Fetch product price
-        $product_query = "SELECT price FROM products WHERE product_id = ?";
+        // Fetch product price and stock quantity
+        $product_query = "SELECT price, stock_quantity FROM products WHERE product_id = ?";
         $stmt = $conn->prepare($product_query);
         $stmt->bind_param("i", $product_id);
         $stmt->execute();
-        $stmt->bind_result($price);
+        $stmt->bind_result($price, $current_stock);
         $stmt->fetch();
         $stmt->close();
 
         if ($price) {
-            $total_amount = $price * $quantity;
+            // Check if there's enough stock
+            if ($current_stock >= $quantity) {
+                $total_amount = $price * $quantity;
 
-            // Insert into orders table
-            $query = "INSERT INTO orders (user_id, order_date, total_amount, product_id, quantity) VALUES (?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("isdii", $user_id, $order_date, $total_amount, $product_id, $quantity);
-
-            if ($stmt->execute()) {
-                $order_id = $stmt->insert_id; // Get the inserted order_id
-                $stmt->close();
-
-                // Insert into order_details table
-                $details_query = "INSERT INTO order_details (order_id, product_id, quantity, price, order_date) 
-                                  VALUES (?, ?, ?, ?, ?)";
-                $stmt = $conn->prepare($details_query);
-                $stmt->bind_param("iiids", $order_id, $product_id, $quantity, $price, $order_date);
+                // Insert into orders table
+                $query = "INSERT INTO orders (user_id, order_date, total_amount, product_id, quantity) VALUES (?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($query);
+                $stmt->bind_param("isdii", $user_id, $order_date, $total_amount, $product_id, $quantity);
 
                 if ($stmt->execute()) {
+                    $order_id = $stmt->insert_id; // Get the inserted order_id
                     $stmt->close();
-                    header("Location: user_order.php?success=1");
-                    exit();
+
+                    // Deduct stock from the products table
+                    $update_stock_query = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?";
+                    $stmt = $conn->prepare($update_stock_query);
+                    $stmt->bind_param("ii", $quantity, $product_id);
+
+                    if ($stmt->execute()) {
+                        $stmt->close();
+
+                        // Insert into order_details table
+                        $details_query = "INSERT INTO order_details (order_id, product_id, quantity, price, order_date) 
+                                          VALUES (?, ?, ?, ?, ?)";
+                        $stmt = $conn->prepare($details_query);
+                        $stmt->bind_param("iiids", $order_id, $product_id, $quantity, $price, $order_date);
+
+                        if ($stmt->execute()) {
+                            $stmt->close();
+                            header("Location: user_order.php?success=1");
+                            exit();
+                        } else {
+                            $error_message = "Error inserting order details: " . $stmt->error;
+                            $stmt->close();
+                        }
+                    } else {
+                        $error_message = "Error updating stock: " . $stmt->error;
+                        $stmt->close();
+                    }
                 } else {
-                    echo "Error inserting order details: " . $stmt->error;
+                    $error_message = "Error placing order: " . $stmt->error;
                     $stmt->close();
                 }
             } else {
-                echo "Error placing order: " . $stmt->error;
-                $stmt->close();
+                $error_message = "Insufficient stock available.";
             }
         } else {
-            echo "Product not found.";
+            $error_message = "Product not found.";
         }
     } else {
-        echo "Please select a product and enter a valid quantity.";
+        $error_message = "Please select a product and enter a valid quantity.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -122,6 +142,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
       <?php endif; ?>
+      <?php if (!empty($error_message)): ?>
+  <div class="error-container">
+    <?= htmlspecialchars($error_message) ?>
+  </div>
+<?php endif; ?>
+
 
       <div class="center-btn">
         <button id="addOrderBtn" class="add-product-btn">Add User Order</button>
@@ -152,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="number" id="quantity" name="quantity" required placeholder="Enter Quantity" />
             </div>
             
+
 
             <button type="submit" class="btn-save">Place Order</button>
         </form>
@@ -201,6 +228,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const totalPrice = price * quantity;
         document.getElementById('total_price').value = '₱' + totalPrice.toFixed(2);
       }
+    });
+    // Sidebar toggle remains unchanged
+    const sidebar = document.querySelector(".sidebar");
+    const sidebarBtn = document.querySelector(".sidebarBtn");
+    sidebarBtn.addEventListener('click', () => {
+        sidebar.classList.toggle("active");
+        sidebarBtn.classList.toggle("bx-menu-alt-right");
+        sidebarBtn.classList.toggle("bx-menu");
     });
   </script>
 
@@ -287,41 +322,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       right: 20px;
       cursor: pointer;
     }
-
-    @keyframes fadeIn {
-      from {
-        transform: scale(0.95);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-    .profile-details {
-    display: flex; /* Enable flexbox for centering */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    /* Add any other styling for the container if needed */
-    padding: 10px; /* Example padding */
-    background-color: #f0f0f0; /* Example background color */
-    border-radius: 5px; /* Example border radius */
+    .error-container {
+  background-color: #ffe6e6;
+  color: #d63031;
+  border: 1px solid #d63031;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-weight: 500;
 }
 
-.user-info {
-    display: flex; /* Enable flexbox for name and icon */
-    align-items: center; /* Align name and icon vertically */
-}
-
-.user_name {
-    margin-right: 8px; /* Add some space between the name and the icon */
-}
-
-.profile-icon svg {
-    width: 24px; /* Adjust the size of the icon */
-    height: 24px;
-    fill: rgba(0, 0, 0, 0.7); /* Adjust the color of the icon */
-}
+    
   </style>
 
 </body>

@@ -72,6 +72,7 @@
   bottom: 0;
   width: 100%;
 }
+
 .home-section{
   position: relative;
   background: #B3835A;
@@ -529,6 +530,35 @@ nav .profile-details i{
 .close-btn:hover {
   color: #e74c3c;
 }
+.status {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.status.pending {
+    background-color: #fbe0c3;
+    color: #b25b00;
+}
+
+.status.delivered {
+    background-color: #c8f7c5;
+    color: #2b7a0b;
+}
+
+.status.cancelled {
+    background-color: #f7c5c5;
+    color: #a70000;
+}
+
+.status.processing {
+    background-color: #c5e0f7;
+    color: #005ea7;
+}
+
 
 
 

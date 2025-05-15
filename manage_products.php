@@ -182,7 +182,7 @@ $products = $conn->query("SELECT * FROM products");
 
         th, td {
             padding: 12px;
-            text-align: left;
+            text-align: center;
             border: 1px solid #ddd;
         }
 
@@ -288,7 +288,7 @@ $products = $conn->query("SELECT * FROM products");
                     <th>Price (₱)</th>
                     <th>Stock</th>
                     <th>Image</th>
-                    <th style="text-align: right;">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>

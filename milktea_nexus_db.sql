@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 12, 2025 at 02:28 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- Generation Time: May 16, 2025 at 06:38 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -40,7 +40,7 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `username`, `email`, `password`, `created_at`) VALUES
-(1, 'admin', 'admin@gmail.com', '$2y$10$HqUtxhD8RVyT1c7v/nF2pa5wFh9HleA8U1LZuy2qlKzQkT5PRjBtu', '2025-05-12 07:05:22');
+(3, 'admin', 'admin@gmail.com', '$2y$10$Uei.T3MIlMbEQDBm5AtKP.u8/f15cQQIGFtnWzx55V6LGA/oFs1K.', '2025-05-14 16:53:55');
 
 -- --------------------------------------------------------
 
@@ -59,12 +59,48 @@ CREATE TABLE `incoming_products` (
 --
 
 INSERT INTO `incoming_products` (`id`, `product_name`, `image_url`) VALUES
-(1, 'latte', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg'),
 (2, 'latte', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg'),
 (3, 'Kwek-Kwek', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg'),
 (4, 'ddwadwad', 'https://i.pinimg.com/736x/c0/7f/60/c07f60bbd7accf7bae89a5167c636b21.jpg'),
-(5, 'wadaw', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg'),
-(6, 'wadaw', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg');
+(5, 'lala', 'https://www.kawalingpinoy.com/wp-content/uploads/2019/07/kwek-kwek-14-1152x1536.jpg'),
+(11, 'Cappucino Coffee', 'https://i.pinimg.com/736x/33/44/2e/33442e58a74503c7cef4fc437a4ebc8e.jpg'),
+(14, 'chocolate smoothie', 'https://i.pinimg.com/736x/db/dc/14/dbdc14256adf60ca6295876c91e82ac5.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ingredients_inventory`
+--
+
+CREATE TABLE `ingredients_inventory` (
+  `id` int(11) NOT NULL,
+  `ingredient_name` varchar(100) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ingredients_stock`
+--
+
+CREATE TABLE `ingredients_stock` (
+  `id` int(11) NOT NULL,
+  `milk_tea_cup` int(11) DEFAULT 0,
+  `powder` int(11) DEFAULT 0,
+  `milk_tea_powder` int(11) DEFAULT 0,
+  `pearl` int(11) DEFAULT 0,
+  `milk` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `product_name` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ingredients_stock`
+--
+
+INSERT INTO `ingredients_stock` (`id`, `milk_tea_cup`, `powder`, `milk_tea_powder`, `pearl`, `milk`, `created_at`, `product_name`) VALUES
+(13, 0, 0, 0, 0, 0, '2025-05-16 04:21:01', '');
 
 -- --------------------------------------------------------
 
@@ -80,18 +116,19 @@ CREATE TABLE `orders` (
   `total_amount` decimal(10,2) DEFAULT NULL,
   `status_id` int(11) DEFAULT NULL,
   `product_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL
+  `quantity` int(11) NOT NULL,
+  `branch` varchar(100) DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `order_date`, `total_amount`, `status_id`, `product_id`, `quantity`) VALUES
-(54, 1, NULL, '2025-05-12 12:14:47', 2375.00, NULL, 9, 25),
-(55, 1, NULL, '2025-05-12 12:55:31', 1900.00, NULL, 11, 20),
-(56, 1, NULL, '2025-05-12 12:58:30', 140.00, NULL, 14, 2),
-(57, 1, NULL, '2025-05-12 13:28:25', 2500.00, NULL, 6, 25);
+INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `order_date`, `total_amount`, `status_id`, `product_id`, `quantity`, `branch`, `location`, `status`) VALUES
+(132, 5, NULL, '2025-05-16 06:21:19', 10000.00, NULL, 34, 100, NULL, NULL, 'Pending'),
+(135, 5, NULL, '2025-05-16 06:25:43', 100.00, NULL, 35, 1, NULL, NULL, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -113,10 +150,8 @@ CREATE TABLE `order_details` (
 --
 
 INSERT INTO `order_details` (`detail_id`, `order_id`, `product_id`, `quantity`, `price`, `order_date`) VALUES
-(6, 54, 9, 25, 95.00, '2025-05-12 12:14:47'),
-(7, 55, 11, 20, 95.00, '2025-05-12 12:55:31'),
-(8, 56, 14, 2, 70.00, '2025-05-12 12:58:30'),
-(9, 57, 6, 25, 100.00, '2025-05-12 13:28:25');
+(84, 132, 34, 100, 100.00, '2025-05-16 06:21:19'),
+(87, 135, 35, 1, 100.00, '2025-05-16 06:25:43');
 
 -- --------------------------------------------------------
 
@@ -150,23 +185,68 @@ CREATE TABLE `products` (
   `product_name` varchar(100) NOT NULL,
   `category` varchar(50) NOT NULL,
   `price` decimal(10,2) NOT NULL,
-  `stock_quantity` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `image_url` varchar(255) DEFAULT NULL
+  `image_url` varchar(255) DEFAULT NULL,
+  `product_image` varchar(255) DEFAULT NULL,
+  `stock` int(11) NOT NULL DEFAULT 0,
+  `cup_stock` int(11) DEFAULT 0,
+  `powder_stock` int(11) DEFAULT 0,
+  `milktea_powder_stock` int(11) DEFAULT 0,
+  `pearl_stock` int(11) DEFAULT 0,
+  `milk_stock` int(11) DEFAULT 0,
+  `stock_quantity` int(11) DEFAULT 0,
+  `milk_tea_cup` int(11) DEFAULT 0,
+  `powder` int(11) DEFAULT 0,
+  `milk_tea_powder` int(11) DEFAULT 0,
+  `pearl` int(11) DEFAULT 0,
+  `milk` int(11) DEFAULT 0,
+  `cup_deduction` int(10) UNSIGNED DEFAULT 1,
+  `powder_deduction` int(10) UNSIGNED DEFAULT 1,
+  `pearl_deduction` int(10) UNSIGNED DEFAULT 1,
+  `milk_deduction` int(10) UNSIGNED DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`product_id`, `product_name`, `category`, `price`, `stock_quantity`, `created_at`, `image_url`) VALUES
-(6, 'chocolate Bubble Tea', 'Milk Tea', 100.00, 99, '2025-05-12 09:43:11', 'https://i.pinimg.com/736x/c0/7f/60/c07f60bbd7accf7bae89a5167c636b21.jpg'),
-(9, 'Babo Milk Tea', 'Milk Tea', 95.00, 40, '2025-05-12 09:45:08', 'https://www.onebabo.com/wp-content/uploads/go-x/u/2e5dbb97-dbc7-43cd-bbd7-7355b41e8d7b/l0,t259,w1133,h755/image-768x512.jpg'),
-(10, 'Purple Boba Milk Tea', 'Milk Tea', 90.00, 50, '2025-05-12 09:45:59', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE0ZuSiF1HxidtSZ-klAAyjEGmkR-JDAiQIw&s'),
-(11, 'Taro Milk Tea', 'Milk Tea', 95.00, 29, '2025-05-12 09:46:38', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGueJoTv7m3RejdSYcWzPuLo7DeDh0B0St_g&s'),
-(12, 'Strawberry Milk Tea', 'Milk Tea', 100.00, 32, '2025-05-12 09:48:13', 'https://static.wixstatic.com/media/649ddb_4f87ec2a78aa4208b0ac46e3b5916b5d~mv2.jpg/v1/fill/w_642,h_502,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image-empty-state.jpg'),
-(13, 'Match Milk Tea', 'Milk Tea', 95.00, 42, '2025-05-12 09:49:20', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGbPlDTcwTQAHpO0bkdiGGAQMJhewdle_tAg&s'),
-(14, 'bubble Tea', 'Milk Tea', 70.00, 20, '2025-05-12 10:58:07', 'https://img.buzzfeed.com/buzzfeed-static/static/2022-11/8/0/asset/71ba74fbe820/sub-buzz-1560-1667865696-1.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto');
+INSERT INTO `products` (`product_id`, `product_name`, `category`, `price`, `created_at`, `image_url`, `product_image`, `stock`, `cup_stock`, `powder_stock`, `milktea_powder_stock`, `pearl_stock`, `milk_stock`, `stock_quantity`, `milk_tea_cup`, `powder`, `milk_tea_powder`, `pearl`, `milk`, `cup_deduction`, `powder_deduction`, `pearl_deduction`, `milk_deduction`) VALUES
+(34, 'Boba Milktea', 'Milk Tea', 100.00, '2025-05-16 04:05:57', 'https://i.pinimg.com/736x/03/f6/fb/03f6fb4d51076c1d5b29657c5053907b.jpg', NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+(35, 'Chocolate Milk Tea', 'Milk Tea', 100.00, '2025-05-16 04:06:09', 'https://i.pinimg.com/736x/bf/82/5d/bf825d56daf06fd8c231e2464b3e5d7d.jpg', NULL, 0, 0, 0, 0, 0, 0, 99, 0, 0, 0, 0, 0, 1, 1, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_ingredients`
+--
+
+CREATE TABLE `product_ingredients` (
+  `product_id` int(11) DEFAULT NULL,
+  `ingredient_name` varchar(50) DEFAULT NULL,
+  `quantity_per_unit` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff`
+--
+
+CREATE TABLE `staff` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `staff`
+--
+
+INSERT INTO `staff` (`id`, `name`, `username`, `email`, `password`, `created_at`) VALUES
+(4, 'staff', 'staff', 'staff@gmail.com', '$2y$10$GFMikKrVD75YDoOrq9umuOjGgs1Z4sSeIZgtgNutRGC7YZgwvMi9m', '2025-05-14 21:31:20');
 
 -- --------------------------------------------------------
 
@@ -188,7 +268,23 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `email`, `password`, `created_at`, `updated_at`) VALUES
-(1, 'user', 'user@gmail.com', '$2y$10$OEX9nzC8gjZq37BxoNdGgOj4lz.MeM9u2nGSng4bm4fWqF8D5GXau', '2025-05-12 07:05:22', '2025-05-12 07:05:22');
+(5, 'user', 'user@gmail.com', '$2y$10$jFTwnmBvVuZnK44HAsdSH.i/UC4sj8GOjXqYjnWKJgHonXbbv6RTC', '2025-05-12 15:07:30', '2025-05-12 15:07:30'),
+(6, 'shein', 'shein@gmail.com', '$2y$10$ClK7XskuC0lmv9XLLzPHWeZd0PCN0het/yPpR4BKbfCF8eLV0.kwa', '2025-05-12 15:16:20', '2025-05-12 15:16:20');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('admin','staff','user') NOT NULL DEFAULT 'user',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -206,6 +302,18 @@ ALTER TABLE `admins`
 -- Indexes for table `incoming_products`
 --
 ALTER TABLE `incoming_products`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `ingredients_inventory`
+--
+ALTER TABLE `ingredients_inventory`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `ingredients_stock`
+--
+ALTER TABLE `ingredients_stock`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -238,11 +346,26 @@ ALTER TABLE `products`
   ADD PRIMARY KEY (`product_id`);
 
 --
+-- Indexes for table `staff`
+--
+ALTER TABLE `staff`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
@@ -253,25 +376,37 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `admins`
 --
 ALTER TABLE `admins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `incoming_products`
 --
 ALTER TABLE `incoming_products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `ingredients_inventory`
+--
+ALTER TABLE `ingredients_inventory`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `ingredients_stock`
+--
+ALTER TABLE `ingredients_stock`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `order_status`
@@ -283,13 +418,25 @@ ALTER TABLE `order_status`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -313,4 +460,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-amen

@@ -65,7 +65,7 @@ if (!$top_sales_result || !$product_result) {
         
         th, td {
             padding: 12px 20px;
-            text-align: left;
+            text-align: center;
             border: 1px solid #e1e1e1;
             vertical-align: middle;
         }
@@ -134,18 +134,22 @@ if (!$top_sales_result || !$product_result) {
 </head>
 <body>
 
-    <div class="sidebar">
-        <ul class="nav-links">
-            <li><a href="admin_dashboard.php"><i class="bx bx-grid-alt"></i><span class="links_name">Dashboard</span></a></li>
-            <li><a href="product.php" class="active"><i class="bx bx-box"></i><span class="links_name">Product</span></a></li>
-            <li><a href="analytics.php"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Analytics</span></a></li>
-            <li><a href="financial_reports.php"><i class="bx bx-line-chart"></i><span class="links_name">Financial Reports</span></a></li>
-            <li><a href="human_resource.php"><i class="bx bx-group"></i><span class="links_name">Human Resource</span></a></li>
-            <li><a href="menu.php"><i class="bx bx-menu"></i><span class="links_name">Menu</span></a></li>
-            <li><a href="settings.php"><i class="bx bx-cog"></i><span class="links_name">Setting</span></a></li>
-            <li class="log_out"><a href="index.php"><i class="bx bx-log-out"></i><span class="links_name">Log out</span></a></li>
-        </ul>
+    <body>
+<div class="sidebar">
+    <div class="logo-details">
+        <i class="bx bx-coffee"></i>
+        <span class="logo_name">MILKTEA NEXUS</span>
     </div>
+    <ul class="nav-links">
+        <li><a href="admin_dashboard.php" class="active"><i class="bx bx-grid-alt"></i><span class="links_name">Dashboard</span></a></li>
+        <li><a href="product.php"><i class="bx bx-box"></i><span class="links_name">Product</span></a></li>
+        <li><a href="ingredients_inventory.php"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Ingredients Inventory</span></a></li>
+        <li><a href="financial_reports.php"><i class="bx bx-line-chart"></i><span class="links_name">Financial Reports</span></a></li>
+        <li><a href="menu.php"><i class="bx bx-menu"></i><span class="links_name">Menu</span></a></li>
+        <li><a href="settings.php"><i class="bx bx-cog"></i><span class="links_name">Setting</span></a></li>
+        <li class="log_out"><a href="index.php"><i class="bx bx-log-out"></i><span class="links_name">Log out</span></a></li>
+    </ul>
+</div>
 
     <section class="home-section">
         <nav>
@@ -179,7 +183,7 @@ if (!$top_sales_result || !$product_result) {
                                     <th>Product Name</th>
                                     <th>Category</th>
                                     <th>Price</th>
-                                    <th>Stock</th>
+                                    <th>Stock of Ingredients</th>
                                 </tr>
                             </thead>
                             <tbody>

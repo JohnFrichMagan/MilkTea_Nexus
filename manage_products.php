@@ -265,7 +265,7 @@ $products = $conn->query("SELECT * FROM products");
                 <input type="number" id="price" name="price" step="0.01" required value="<?= $editingProduct['price'] ?? '' ?>" />
             </div>
             <div class="form-group">
-                <label for="stock">Stock Quantity</label>
+                <label for="stock">Stock of Ingredients</label>
                 <input type="number" id="stock" name="stock" required value="<?= $editingProduct['stock_quantity'] ?? '' ?>" />
             </div>
             <div class="form-group">
@@ -286,7 +286,7 @@ $products = $conn->query("SELECT * FROM products");
                     <th>Name</th>
                     <th>Category</th>
                     <th>Price (₱)</th>
-                    <th>Stock</th>
+                    <th>Stock Of Indredients</th>
                     <th>Image</th>
                     <th>Actions</th>
                 </tr>

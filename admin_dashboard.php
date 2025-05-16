@@ -110,9 +110,8 @@ if ($conn->connect_error) {
     <ul class="nav-links">
         <li><a href="admin_dashboard.php" class="active"><i class="bx bx-grid-alt"></i><span class="links_name">Dashboard</span></a></li>
         <li><a href="product.php"><i class="bx bx-box"></i><span class="links_name">Product</span></a></li>
-        <li><a href="analytics.php"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Analytics</span></a></li>
+        <li><a href="ingredients_inventory.php"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Ingredients Inventory</span></a></li>
         <li><a href="financial_reports.php"><i class="bx bx-line-chart"></i><span class="links_name">Financial Reports</span></a></li>
-        <li><a href="human_resource.php"><i class="bx bx-group"></i><span class="links_name">Human Resource</span></a></li>
         <li><a href="menu.php"><i class="bx bx-menu"></i><span class="links_name">Menu</span></a></li>
         <li><a href="settings.php"><i class="bx bx-cog"></i><span class="links_name">Setting</span></a></li>
         <li class="log_out"><a href="index.php"><i class="bx bx-log-out"></i><span class="links_name">Log out</span></a></li>
@@ -130,7 +129,7 @@ if ($conn->connect_error) {
             <i class="bx bx-search"></i>
         </div>
         <div class="profile-details">
-            <span class="admin_name"><?= isset($_SESSION["email"]) ? htmlspecialchars($_SESSION["email"]) : "Guest" ?></span>
+            <span class="admin_name"><?= isset($_SESSION["email"]) ? htmlspecialchars($_SESSION["email"]) : "Admin" ?></span>
             <div class="profile-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M12 4a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>

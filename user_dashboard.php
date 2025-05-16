@@ -161,7 +161,7 @@ $products = $conn->query("SELECT * FROM products");
                         <h3><?= htmlspecialchars($product['product_name']) ?></h3>
                         <p><strong>Category:</strong> <?= htmlspecialchars($product['category']) ?></p>
                         <p><strong>Price:</strong> ₱<?= number_format($product['price'], 2) ?></p>
-                        <p><strong>Stock:</strong> <?= intval($product['stock_quantity']) ?></p>
+                        <p><strong>Stock of Ingredients:</strong> <?= intval($product['stock_quantity']) ?></p>
                     </div>
                 <?php endwhile; ?>
             </div>

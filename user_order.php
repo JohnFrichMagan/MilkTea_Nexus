@@ -184,6 +184,99 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="style.css" />
     <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+        .center-btn {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            margin-top: 30px;
+        }
+        .add-product-btn {
+            background-color: #6c5ce7;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-product-btn:hover {
+            background-color: #4e38c1;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal-content h2 {
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .modal-content p {
+            color: #636e72;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .modal-content button {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #4e38c1;
+        }
+
+        .close-btn {
+            color: #d63031;
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+        }
+        .error-container {
+            background-color: #ffe6e6;
+            color: #d63031;
+            border: 1px solid #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <div class="sidebar">
@@ -297,99 +390,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             sidebarBtn.classList.toggle("bx-menu");
         });
     </script>
-
-    <style>
-        .center-btn {
-            display: flex;
-            justify-content: left;
-            align-items: center;
-            margin-top: 30px;
-        }
-        .add-product-btn {
-            background-color: #6c5ce7;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .add-product-btn:hover {
-            background-color: #4e38c1;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 999;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            padding: 30px 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        .modal-content h2 {
-            color: #2d3436;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .modal-content p {
-            color: #636e72;
-            font-size: 16px;
-            margin-bottom: 25px;
-        }
-
-        .modal-content button {
-            background-color: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .modal-content button:hover {
-            background-color: #4e38c1;
-        }
-
-        .close-btn {
-            color: #d63031;
-            font-size: 24px;
-            font-weight: bold;
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            cursor: pointer;
-        }
-        .error-container {
-            background-color: #ffe6e6;
-            color: #d63031;
-            border: 1px solid #d63031;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-            font-weight: 500;
-        }
-    </style>
 </body>
 </html>

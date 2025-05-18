@@ -1,21 +1,25 @@
 <?php
 include 'config.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
-    $milk_tea_cup = intval($_POST['milk_tea_cup']);
-    $milk_tea_powder = intval($_POST['milk_tea_powder']);
-    $pearl = intval($_POST['pearl']);
-    $milk = intval($_POST['milk']);
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $product_id = $_POST['product_id'];
+    $milk_tea_cup = $_POST['milk_tea_cup'];
+    $milk_tea_powder = $_POST['milk_tea_powder'];
+    $pearl = $_POST['pearl'];
+    $milk = $_POST['milk'];
 
-    $sql = "INSERT INTO ingredients_stock (product_name, milk_tea_cup, milk_tea_powder, pearl, milk) 
-            VALUES ('$product_name', $milk_tea_cup, $milk_tea_powder, $pearl, $milk)";
+    $stmt = $conn->prepare("INSERT INTO ingredients_stock 
+        (product_id, milk_tea_cup, milk_tea_powder, pearl, milk) 
+        VALUES (?, ?, ?, ?, ?)");
 
-    if (mysqli_query($conn, $sql)) {
+    if ($stmt) {
+        $stmt->bind_param("iiiii", $product_id, $milk_tea_cup, $milk_tea_powder, $pearl, $milk);
+        $stmt->execute();
+        $stmt->close();
         header("Location: ingredients_inventory.php");
         exit();
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "Prepare failed: " . $conn->error;
     }
 }
 ?>

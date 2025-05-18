@@ -286,7 +286,7 @@ $products = $conn->query("SELECT * FROM products");
                     <th>Name</th>
                     <th>Category</th>
                     <th>Price (₱)</th>
-                    <th>Stock Of Indredients</th>
+                    <th>Quantity</th>
                     <th>Image</th>
                     <th>Actions</th>
                 </tr>

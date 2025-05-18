@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2025 at 06:38 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- Generation Time: May 18, 2025 at 04:02 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -86,6 +86,7 @@ CREATE TABLE `ingredients_inventory` (
 
 CREATE TABLE `ingredients_stock` (
   `id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
   `milk_tea_cup` int(11) DEFAULT 0,
   `powder` int(11) DEFAULT 0,
   `milk_tea_powder` int(11) DEFAULT 0,
@@ -99,8 +100,9 @@ CREATE TABLE `ingredients_stock` (
 -- Dumping data for table `ingredients_stock`
 --
 
-INSERT INTO `ingredients_stock` (`id`, `milk_tea_cup`, `powder`, `milk_tea_powder`, `pearl`, `milk`, `created_at`, `product_name`) VALUES
-(13, 0, 0, 0, 0, 0, '2025-05-16 04:21:01', '');
+INSERT INTO `ingredients_stock` (`id`, `product_id`, `milk_tea_cup`, `powder`, `milk_tea_powder`, `pearl`, `milk`, `created_at`, `product_name`) VALUES
+(21, 35, 21, 0, 20, 12, 12, '2025-05-18 13:31:00', NULL),
+(22, 37, 21, 0, 2112, 21, 21, '2025-05-18 13:32:12', NULL);
 
 -- --------------------------------------------------------
 
@@ -127,8 +129,14 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `user_id`, `customer_name`, `order_date`, `total_amount`, `status_id`, `product_id`, `quantity`, `branch`, `location`, `status`) VALUES
-(132, 5, NULL, '2025-05-16 06:21:19', 10000.00, NULL, 34, 100, NULL, NULL, 'Pending'),
-(135, 5, NULL, '2025-05-16 06:25:43', 100.00, NULL, 35, 1, NULL, NULL, 'Pending');
+(135, 5, NULL, '2025-05-16 06:25:43', 100.00, NULL, 35, 1, NULL, NULL, 'Pending'),
+(136, 5, NULL, '2025-05-18 14:33:05', 1200.00, NULL, 35, 12, NULL, NULL, 'Pending'),
+(137, 5, NULL, '2025-05-18 14:33:21', 1500.00, NULL, 35, 15, NULL, NULL, 'Pending'),
+(138, 5, NULL, '2025-05-18 14:34:20', 100.00, NULL, 35, 1, NULL, NULL, 'Pending'),
+(139, 5, NULL, '2025-05-18 15:16:23', 100.00, NULL, 35, 1, NULL, NULL, 'Pending'),
+(140, 5, NULL, '2025-05-18 15:43:59', 1000.00, NULL, 35, 10, NULL, NULL, 'Pending'),
+(141, 5, NULL, '2025-05-18 15:46:00', 990.00, NULL, 37, 10, NULL, NULL, 'Pending'),
+(142, 5, NULL, '2025-05-18 15:46:13', 1188.00, NULL, 37, 12, NULL, NULL, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -150,8 +158,14 @@ CREATE TABLE `order_details` (
 --
 
 INSERT INTO `order_details` (`detail_id`, `order_id`, `product_id`, `quantity`, `price`, `order_date`) VALUES
-(84, 132, 34, 100, 100.00, '2025-05-16 06:21:19'),
-(87, 135, 35, 1, 100.00, '2025-05-16 06:25:43');
+(87, 135, 35, 1, 100.00, '2025-05-16 06:25:43'),
+(88, 136, 35, 12, 100.00, '2025-05-18 14:33:05'),
+(89, 137, 35, 15, 100.00, '2025-05-18 14:33:21'),
+(90, 138, 35, 1, 100.00, '2025-05-18 14:34:20'),
+(91, 139, 35, 1, 100.00, '2025-05-18 15:16:23'),
+(92, 140, 35, 10, 100.00, '2025-05-18 15:43:59'),
+(93, 141, 37, 10, 99.00, '2025-05-18 15:46:00'),
+(94, 142, 37, 12, 99.00, '2025-05-18 15:46:13');
 
 -- --------------------------------------------------------
 
@@ -211,8 +225,9 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`product_id`, `product_name`, `category`, `price`, `created_at`, `image_url`, `product_image`, `stock`, `cup_stock`, `powder_stock`, `milktea_powder_stock`, `pearl_stock`, `milk_stock`, `stock_quantity`, `milk_tea_cup`, `powder`, `milk_tea_powder`, `pearl`, `milk`, `cup_deduction`, `powder_deduction`, `pearl_deduction`, `milk_deduction`) VALUES
-(34, 'Boba Milktea', 'Milk Tea', 100.00, '2025-05-16 04:05:57', 'https://i.pinimg.com/736x/03/f6/fb/03f6fb4d51076c1d5b29657c5053907b.jpg', NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1),
-(35, 'Chocolate Milk Tea', 'Milk Tea', 100.00, '2025-05-16 04:06:09', 'https://i.pinimg.com/736x/bf/82/5d/bf825d56daf06fd8c231e2464b3e5d7d.jpg', NULL, 0, 0, 0, 0, 0, 0, 99, 0, 0, 0, 0, 0, 1, 1, 1, 1);
+(35, 'Chocolate Milk Tea', 'Milk Tea', 100.00, '2025-05-16 04:06:09', 'https://i.pinimg.com/736x/bf/82/5d/bf825d56daf06fd8c231e2464b3e5d7d.jpg', NULL, 0, 0, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+(37, 'Formosa Taiwan Milk Tea', 'Milk Tea', 99.00, '2025-05-18 12:17:30', 'https://assets.epicurious.com/photos/629f98926e3960ec24778116/1:1/w_1920,c_limit/BubbleTea_RECIPE_052522_34811.jpg', NULL, 0, 0, 0, 0, 0, 0, 178, 0, 0, 0, 0, 0, 1, 1, 1, 1),
+(38, 'Boba Milktea', 'Milk Tea', 100.00, '2025-05-18 13:05:20', 'https://i.pinimg.com/736x/03/f6/fb/03f6fb4d51076c1d5b29657c5053907b.jpg', NULL, 0, 0, 0, 0, 0, 0, 200, 0, 0, 0, 0, 0, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -394,19 +409,19 @@ ALTER TABLE `ingredients_inventory`
 -- AUTO_INCREMENT for table `ingredients_stock`
 --
 ALTER TABLE `ingredients_stock`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=136;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=143;
 
 --
 -- AUTO_INCREMENT for table `order_details`
 --
 ALTER TABLE `order_details`
-  MODIFY `detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT for table `order_status`
@@ -418,7 +433,7 @@ ALTER TABLE `order_status`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `staff`

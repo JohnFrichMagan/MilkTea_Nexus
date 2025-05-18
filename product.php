@@ -183,7 +183,7 @@ if (!$top_sales_result || !$product_result) {
                                     <th>Product Name</th>
                                     <th>Category</th>
                                     <th>Price</th>
-                                    <th>Stock of Ingredients</th>
+                                    <th>Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -155,10 +155,10 @@ if (isset($_POST['delete_account'])) {
         <span class="dashboard">Settings</span>
       </div>
       <div class="profile-details">
-        <img src="images/staff.jpg" alt="" />
-        <span class="admin_name"><?php echo htmlspecialchars($name); ?></span>
-        <i class="bx bx-chevron-down"></i>
-      </div>
+                <img src="images/admin.jpg" alt="Staff" />
+                <span class="admin_name">Staff</span>
+                <i class="bx bx-chevron-down"></i>
+            </div>
     </nav>
 
     <div class="content">

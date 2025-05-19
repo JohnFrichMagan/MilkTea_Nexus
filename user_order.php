@@ -1,10 +1,9 @@
 <?php
-require_once 'config.php'; // Database connection
+require_once 'config.php';
 session_start();
 
-$error_message = ''; // Initialize error message variable
+$error_message = '';
 
-// Redirect if user not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -22,10 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $product_id = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
     $order_date = date("Y-m-d H:i:s");
-    $stmt = null; // Initialize $stmt
+    $stmt = null;
 
     if ($product_id > 0 && $quantity > 0) {
-        // Fetch product name and price
+        // Get product details
         $product_query = "SELECT product_name, price, stock_quantity FROM products WHERE product_id = ?";
         $stmt = $conn->prepare($product_query);
         $stmt->bind_param("i", $product_id);
@@ -33,16 +32,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_result($product_name_ordered, $price, $current_stock);
         $stmt->fetch();
         $stmt->close();
-        $stmt = null;
 
         if ($price) {
             if ($current_stock >= $quantity) {
                 $total_amount = $price * $quantity;
 
                 $conn->begin_transaction();
-                $success = true; // Flag to track transaction success
+                $success = true;
 
-                // Insert into orders table
+                // Insert order
                 $query = "INSERT INTO orders (user_id, order_date, total_amount, product_id, quantity) VALUES (?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($query);
                 $stmt->bind_param("isdii", $user_id, $order_date, $total_amount, $product_id, $quantity);
@@ -51,12 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $success = false;
                 }
                 $stmt->close();
-                $stmt = null;
 
                 if ($success) {
                     $order_id = $conn->insert_id;
 
-                    // Deduct stock from products table
+                    // Update product stock
                     $update_stock_query = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?";
                     $stmt = $conn->prepare($update_stock_query);
                     $stmt->bind_param("ii", $quantity, $product_id);
@@ -65,11 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $success = false;
                     }
                     $stmt->close();
-                    $stmt = null;
                 }
 
                 if ($success) {
-                    // Insert into order_details table
+                    // Insert order details
                     $details_query = "INSERT INTO order_details (order_id, product_id, quantity, price, order_date) VALUES (?, ?, ?, ?, ?)";
                     $stmt = $conn->prepare($details_query);
                     $stmt->bind_param("iiids", $order_id, $product_id, $quantity, $price, $order_date);
@@ -78,95 +74,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $success = false;
                     }
                     $stmt->close();
-                    $stmt = null;
                 }
 
+                // Deduct ingredients
                 if ($success) {
-                    // Deduct ingredients based on the ordered product name
                     $deduct_ingredients_query = "UPDATE ingredients_stock SET ";
                     $updates = [];
                     $types = '';
                     $params = [];
 
-                    if (trim(strtolower($product_name_ordered)) === 'boba milktea') {
+                    $product_name_lower = trim(strtolower($product_name_ordered));
+
+                    if ($product_name_lower === 'boba milktea') {
                         $updates[] = "milk_tea_cup = milk_tea_cup - ?";
-                        $types .= 'i';
-                        $params[] = $quantity;
+                        $types .= 'i'; $params[] = $quantity;
                         $updates[] = "milk_tea_powder = milk_tea_powder - ?";
-                        $types .= 'i';
-                        $params[] = $quantity;
+                        $types .= 'i'; $params[] = $quantity;
                         $updates[] = "pearl = pearl - ?";
-                        $types .= 'i';
-                        $params[] = $quantity;
+                        $types .= 'i'; $params[] = $quantity;
                         $updates[] = "milk = milk - ?";
-                        $types .= 'i';
-                        $params[] = $quantity;
+                        $types .= 'i'; $params[] = $quantity;
 
                         $deduct_ingredients_query .= implode(', ', $updates) . "
-                                                  WHERE id = (SELECT MAX(id) FROM ingredients_stock)
-                                                    AND milk_tea_cup >= ? AND milk_tea_powder >= ? AND pearl >= ? AND milk >= ?";
+                            WHERE id = (SELECT MAX(id) FROM ingredients_stock)
+                            AND milk_tea_cup >= ? AND milk_tea_powder >= ? AND pearl >= ? AND milk >= ?";
                         $types .= 'iiii';
                         $params = array_merge($params, [$quantity, $quantity, $quantity, $quantity]);
-                    }
-                    // Add more conditions for other products as needed. Use the EXACT product name.
-                    else if (trim(strtolower($product_name_ordered)) === 'other product name') {
-                        // Example for another product
-                        $updates[] = "some_ingredient = some_ingredient - ?";
-                        $types .= 'i';
-                        $params[] = $quantity * 2;
+
+                    } elseif ($product_name_lower === 'chocolate milk tea') {
+                        $cup = $quantity * 1;
+                        $powder = $quantity * 2;
+                        $milk_tea_powder = $quantity * 1;
+                        $pearl = $quantity * 1;
+                        $milk = $quantity * 1;
+
+                        $updates[] = "milk_tea_cup = milk_tea_cup - ?";
+                        $updates[] = "powder = powder - ?";
+                        $updates[] = "milk_tea_powder = milk_tea_powder - ?";
+                        $updates[] = "pearl = pearl - ?";
+                        $updates[] = "milk = milk - ?";
 
                         $deduct_ingredients_query .= implode(', ', $updates) . "
-                                                  WHERE id = (SELECT MAX(id) FROM ingredients_stock)
-                                                    AND some_ingredient >= ?";
-                        $types .= 'i';
-                        $params[] = $quantity * 2;
-                    }
-                    else {
+                            WHERE id = (SELECT MAX(id) FROM ingredients_stock)
+                            AND milk_tea_cup >= ? AND powder >= ? AND milk_tea_powder >= ? AND pearl >= ? AND milk >= ?";
+
+                        $params = [$cup, $powder, $milk_tea_powder, $pearl, $milk, $cup, $powder, $milk_tea_powder, $pearl, $milk];
+                        $types = str_repeat('i', count($params));
+                    } else {
                         $error_message = "Ingredient deduction for '" . htmlspecialchars($product_name_ordered) . "' is not defined.";
                         $success = false;
                     }
 
-                   if ($success && !empty($updates)) {
-    $stmt = $conn->prepare($deduct_ingredients_query);
+                    if ($success && !empty($updates)) {
+                        $stmt = $conn->prepare($deduct_ingredients_query);
+                        if ($stmt === false) {
+                            $error_message = "Error preparing ingredient deduction query: " . $conn->error;
+                            $success = false;
+                        } else {
+                            $stmt->bind_param($types, ...$params);
+                            if (!$stmt->execute()) {
+                                $error_message = "Error deducting ingredients: " . $stmt->error;
+                                $success = false;
+                            }
+                            $stmt->close();
+                        }
+                    }
+                }
 
-    // Define deductions per product
-    if (trim(strtolower($product_name_ordered)) === 'boba milktea') {
-        // Deduct 1 unit from each of the 8 ingredients for every 1 order
-        $stmt->bind_param("iiiiiiii", $quantity, $quantity, $quantity, $quantity, $quantity, $quantity, $quantity, $quantity);
-    } elseif (trim(strtolower($product_name_ordered)) === 'chocolate milk tea') {
-        // Define the deduction amounts per Chocolate Milk Tea order
-        $cup = $quantity * 1;              // Milk Tea Cup
-        $powder = $quantity * 2;           // Powder
-        $milk_tea_powder = $quantity * 1;  // Milk Tea Powder
-        $pearl = $quantity * 1;            // Pearl
-        $milk = $quantity * 1;             // Milk
-        $sugar = $quantity * 1;            // Sugar
-        $ice = $quantity * 1;              // Ice
-        $chocolate = $quantity * 1;        // Chocolate
-
-        $stmt->bind_param("iiiiiiii", $cup, $powder, $milk_tea_powder, $pearl, $milk, $sugar, $ice, $chocolate);
-    } else {
-        $error_message = "Ingredient deduction not defined for this product: $product_name_ordered";
-        $success = false;
-    }
-
-    if ($success) {
-        if (!$stmt->execute()) {
-            $error_message = "Error deducting ingredients: " . $stmt->error;
-            $success = false;
-        }
-        $stmt->close();
-    }
-}
-   $conn->commit();
+                if ($success) {
+                    $conn->commit();
                     header("Location: user_order.php?success=1");
                     exit();
                 } else {
                     $conn->rollback();
                 }
-
             } else {
-                $error_message = "Insufficient stock available for " . htmlspecialchars($product_name_ordered) . ".";
+                $error_message = "Insufficient stock for " . htmlspecialchars($product_name_ordered) . ".";
             }
         } else {
             $error_message = "Product not found.";
@@ -176,6 +159,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
+<!-- Optional: display form and messages here -->
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>

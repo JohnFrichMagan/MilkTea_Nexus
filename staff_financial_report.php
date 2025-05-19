@@ -156,7 +156,7 @@ foreach ($time_frames as $time_frame) {
         </div>
         <ul class="nav-links">
             <li><a href="staff_dashboard.php"><i class="bx bx-grid-alt"></i><span class="links_name">Dashboard</span></a></li>
-            <li><a href="staff_financial_reports.php" class="active"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Financial Reports</span></a></li>
+            <li><a href="staff_financial_report.php" class="active"><i class="bx bx-pie-chart-alt-2"></i><span class="links_name">Financial Reports</span></a></li>
             <li><a href="staff_customer_orders.php"><i class="bx bx-cart"></i><span class="links_name">Customer Orders</span></a></li>
             <li><a href="staff_settings.php"><i class="bx bx-cog"></i><span class="links_name">Settings</span></a></li>
             <li class="log_out"><a href="index.php"><i class="bx bx-log-out"></i><span class="links_name">Log out</span></a></li>
@@ -222,88 +222,92 @@ foreach ($time_frames as $time_frame) {
                 </table>
             </div>
 
-            <!-- Product Sales Details -->
-            <div class="sales-table-container">
-                <div class="section-header">
-                    <h2><i class="bx bx-package"></i> Product Sales Details</h2>
-                </div>
+          <div class="sales-table-container">
+    <div class="section-header">
+        <h2><i class="bx bx-basket"></i> Product Sales Details</h2>
+    </div>
+    <div class="btn-group">
+        <button id="productWeeklyBtn" class="active">Weekly</button>
+        <button id="productMonthlyBtn">Monthly</button>
+        <button id="productYearlyBtn">Yearly</button>
+    </div>
 
-                <!-- Weekly Product Sales Table -->
-                <table id="weeklyProductTable">
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Product Name</th>
-                            <th>Quantity Sold</th>
-                            <th>Total Sales (₱)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($product_sales['week'] as $product): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-                            <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                            <td><?php echo number_format($product['total_quantity']); ?></td>
-                            <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($product_sales['week'])): ?>
-                        <tr><td colspan="4">No product sales data for this period.</td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+    <!-- Weekly Product Sales Table -->
+    <table id="productWeeklyTable">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales (₱)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($product_sales['week'] as $product): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                <td><?php echo number_format($product['total_quantity']); ?></td>
+                <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (empty($product_sales['week'])): ?>
+            <tr><td colspan="4">No product sales data for this period.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
-                <!-- Monthly Product Sales Table -->
-                <table id="monthlyProductTable" style="display:none;">
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Product Name</th>
-                            <th>Quantity Sold</th>
-                            <th>Total Sales (₱)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($product_sales['month'] as $product): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-                            <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                            <td><?php echo number_format($product['total_quantity']); ?></td>
-                            <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($product_sales['month'])): ?>
-                        <tr><td colspan="4">No product sales data for this period.</td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+    <!-- Monthly Product Sales Table -->
+    <table id="productMonthlyTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales (₱)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($product_sales['month'] as $product): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                <td><?php echo number_format($product['total_quantity']); ?></td>
+                <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (empty($product_sales['month'])): ?>
+            <tr><td colspan="4">No product sales data for this period.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
 
-                <!-- Yearly Product Sales Table -->
-                <table id="yearlyProductTable" style="display:none;">
-                    <thead>
-                        <tr>
-                            <th>Product ID</th>
-                            <th>Product Name</th>
-                            <th>Quantity Sold</th>
-                            <th>Total Sales (₱)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($product_sales['year'] as $product): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($product['product_id']); ?></td>
-                            <td><?php echo htmlspecialchars($product['product_name']); ?></td>
-                            <td><?php echo number_format($product['total_quantity']); ?></td>
-                            <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($product_sales['year'])): ?>
-                        <tr><td colspan="4">No product sales data for this period.</td></tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <!-- Yearly Product Sales Table -->
+    <table id="productYearlyTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales (₱)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($product_sales['year'] as $product): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                <td><?php echo number_format($product['total_quantity']); ?></td>
+                <td>₱<?php echo number_format($product['total_sales'], 2); ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (empty($product_sales['year'])): ?>
+            <tr><td colspan="4">No product sales data for this period.</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
     </section>
 
     <script>
@@ -316,6 +320,42 @@ foreach ($time_frames as $time_frame) {
                 sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
             } else sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
         };
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const weeklyBtn = document.getElementById('productWeeklyBtn');
+    const monthlyBtn = document.getElementById('productMonthlyBtn');
+    const yearlyBtn = document.getElementById('productYearlyBtn');
+
+    const weeklyTable = document.getElementById('productWeeklyTable');
+    const monthlyTable = document.getElementById('productMonthlyTable');
+    const yearlyTable = document.getElementById('productYearlyTable');
+
+    function setActiveButton(activeBtn) {
+        [weeklyBtn, monthlyBtn, yearlyBtn].forEach(btn => btn.classList.remove('active'));
+        activeBtn.classList.add('active');
+    }
+
+    function showTable(week, month, year) {
+        weeklyTable.style.display = week;
+        monthlyTable.style.display = month;
+        yearlyTable.style.display = year;
+    }
+
+    weeklyBtn.addEventListener('click', function () {
+        showTable('', 'none', 'none');
+        setActiveButton(weeklyBtn);
+    });
+
+    monthlyBtn.addEventListener('click', function () {
+        showTable('none', '', 'none');
+        setActiveButton(monthlyBtn);
+    });
+
+    yearlyBtn.addEventListener('click', function () {
+        showTable('none', 'none', '');
+        setActiveButton(yearlyBtn);
+    });
+});
 
         // Chart.js pie chart for order statuses
         const ctx = document.getElementById('orderStatusChart').getContext('2d');

@@ -62,7 +62,7 @@
 
         .login-button {
             background-color: #d2b48c;
-            color: white;
+            color: black;
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 5px;
@@ -101,7 +101,7 @@
         .hero-content p {
             font-size: 1.5em;
             margin-bottom: 30px;
-            color: #555;
+            color: #000000;
         }
 
         #hero .login-button {
@@ -142,10 +142,10 @@
 
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Menu</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact Us</a></li>
+                <li><a href="index.php" class="active"><span class="links_name">Home</span></a></li>
+                <li><a href="menus.php" class="active"><span class="links_name">Menu</span></a></li>
+                <li><a href="about.php" class="active"><span class="links_name">AboutUs</span></a></li>
+                <li><a href="contact.php" class="active"><span class="links_name">ContactUs</span></a></li>
             </ul>
         </nav>
         <a href="admin_login.php" class="login-button">Admin & Staff Login</a>
@@ -154,7 +154,7 @@
     <main>
         <section id="hero">
             <div class="hero-content">
-                <h1>Welcome to MILKTEA NEXUS</h1>
+                <h1>WELCOME TO MILKTEA NEXUS</h1>
                 <p>With just a few clicks, you can enjoy the smart way to order your favorite milk tea!</p>
                 <a href="user_login.php" class="login-button">LOGIN</a>
 
